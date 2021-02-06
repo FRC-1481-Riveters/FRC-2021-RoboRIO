@@ -10,6 +10,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.util.Units;
 import frc.robot.Gains;
+import edu.wpi.first.wpilibj.kinematics.*;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -125,8 +126,10 @@ public final class Constants {
 	public static final double kMaxAccelerationMetersPerSecondSquared = 7.0;
 	public static final double kRamseteB = 2;
 	public static final double kRamseteZeta = 0.7;
-    //public static final DifferentialDriveKinematics kDriveKinematics =
-        //new DifferentialDriveKinematics(kTrackwidthMeters);
+    public static final DifferentialDriveKinematics kDriveKinematics =
+		new DifferentialDriveKinematics(kTrackwidthMeters);
+	public static final double drivetrainGearing = 10.111111;
+	public static final double drivetrainWheelRevPerMeter = 0.47798;
 	public static final double driveTireDiameterInMeters = Units.inchesToMeters(8.0);
 	public static final double minJoystickActiveValue = 0.05; 
 

@@ -17,6 +17,7 @@ import frc.robot.commands.ArcadeDrive;
 import frc.robot.commands.AutonRobotDriveDistance;
 import frc.robot.commands.AutonShoot3StackedPowerCellsAndDriveOffLine;
 import frc.robot.commands.AutonSuperTrenchSequence;
+import frc.robot.commands.AutonCircle;
 import frc.robot.commands.CycleCameraFeedCommand;
 import frc.robot.commands.ElevatorSolenoidPullIn;
 import frc.robot.commands.ElevatorSolenoidPullOut;
@@ -70,7 +71,7 @@ import frc.robot.subsystems.CyanSus;
  */
 public class RobotContainer {
         // The robot's subsystems and commands are defined here...
-        private final colorsensor m_colorsensor = new colorsensor();
+        //private final colorsensor m_colorsensor = new colorsensor();
         private final wheelOfFortuneColorSpinny m_wheelOfFortuneColorSpinny = new wheelOfFortuneColorSpinny();
 
         private final Shooter m_shooter = new Shooter();
@@ -78,13 +79,13 @@ public class RobotContainer {
         private final DriveTrain m_drive = new DriveTrain();
 
         private final CameraSubsystem m_cameraSubsystem = new CameraSubsystem(m_drive);
-        private final Elevator m_elevator = new Elevator();
-        private final Goosehook m_goosehook = new Goosehook();
+        //private final Elevator m_elevator = new Elevator();
+        //private final Goosehook m_goosehook = new Goosehook();
 
         private final IRSensor m_intakePowerCellPositionSensor = new IRSensor(IRSensor.SensorType.GP2Y0A41SK0F, 0);
         private final Indexer m_indexer = new Indexer(m_intakePowerCellPositionSensor);
         private final Intake m_intake = new Intake(m_intakePowerCellPositionSensor);
-        private final PowerCellArm m_powerCellArm = new PowerCellArm();
+        //private final PowerCellArm m_powerCellArm = new PowerCellArm();
         private final AutoAssistSubsystem m_autoAssist = new AutoAssistSubsystem();
         private final UltrasonicSensor m_ultrasonicSensor = new UltrasonicSensor();
         //public final CyanSus m_cyanSus = new CyanSus();
@@ -102,11 +103,12 @@ public class RobotContainer {
                 // Configure the button bindings
                 configureButtonBindings();
 
+/*
                 SmartDashboard.putData(new CycleCameraFeedCommand(m_cameraSubsystem));
                 SmartDashboard.putData(new IndexerCarryUpCommand(m_indexer).withTimeout(5.0));
                 SmartDashboard.putData(m_intakePowerCellPositionSensor);
                 SmartDashboard.putData(new AutonRobotDriveDistance(m_drive, -4.0));
-
+*/
                 /*
                  * Add more Autonomous commands to the Dashboard's "Auto Mode" drop down
                  * chooser, m_chooser with the addOption() method, e.g.:
@@ -121,7 +123,8 @@ public class RobotContainer {
                  */
 
                 //m_chooser.setDefaultOption("Shoot 3, back robot off line", new AutonShoot3StackedPowerCellsAndDriveOffLine(m_shooter, m_indexer, m_kicker, m_drive));
-                m_chooser.setDefaultOption("Shoot 3, back robot off line", new AutonSuperTrenchSequence(m_shooter, m_indexer, m_kicker, m_drive, m_intake));
+                //m_chooser.setDefaultOption("Shoot 3, back robot off line", new AutonSuperTrenchSequence(m_shooter, m_indexer, m_kicker, m_drive, m_intake));
+                m_chooser.setDefaultOption("2 meter circle", new AutonCircle(m_shooter, m_indexer, m_kicker, m_drive, m_intake));
                 m_chooser.addOption("-= Do nothing =-", new SequentialCommandGroup(new PrintCommand("Do nothing selected for auton."), new WaitCommand(5.0)));
 
                 SmartDashboard.putData("Auto mode", m_chooser);
@@ -137,8 +140,8 @@ public class RobotContainer {
         private void configureButtonBindings() {
 
                 /* Wheel of Fortune */
-                new JoystickButton(m_operatorController, Button.kX.value).whileHeld(new RotateOrJogControlPanelCommand(m_wheelOfFortuneColorSpinny, m_operatorController));
-                new JoystickButton(m_operatorController, Button.kB.value).whileHeld(new PositionControlPanelCommand(m_wheelOfFortuneColorSpinny, m_colorsensor, m_operatorController));
+                //new JoystickButton(m_operatorController, Button.kX.value).whileHeld(new RotateOrJogControlPanelCommand(m_wheelOfFortuneColorSpinny, m_operatorController));
+                //new JoystickButton(m_operatorController, Button.kB.value).whileHeld(new PositionControlPanelCommand(m_wheelOfFortuneColorSpinny, m_colorsensor, m_operatorController));
 
                 /* Shoot Power Cells */
                 new JoystickButton(m_driverController, Button.kB.value).whileHeld(// initiation linev
@@ -194,12 +197,12 @@ public class RobotContainer {
                 );
 
                 /* Elevator and goosehook */
-                new JoystickButton(m_driverController, Button.kX.value).whileHeld(new raiseElevator(m_elevator));
-                new JoystickButton(m_driverController, Button.kA.value).whileHeld(new lowerElevator(m_elevator));
-                new JoystickButton(m_driverController, Button.kBumperLeft.value).whileHeld(new GoosehookEngage(m_goosehook));
-                new JoystickButton(m_driverController, Button.kBumperRight.value).whileHeld(new GoosehookDisengage(m_goosehook));
-                new JoystickButton(m_operatorController, Button.kStart.value).whenPressed(new ElevatorSolenoidPullIn(m_elevator));
-                new JoystickButton(m_operatorController, Button.kBack.value).whenPressed(new ElevatorSolenoidPullOut(m_elevator));
+                //new JoystickButton(m_driverController, Button.kX.value).whileHeld(new raiseElevator(m_elevator));
+                //new JoystickButton(m_driverController, Button.kA.value).whileHeld(new lowerElevator(m_elevator));
+                //new JoystickButton(m_driverController, Button.kBumperLeft.value).whileHeld(new GoosehookEngage(m_goosehook));
+                //new JoystickButton(m_driverController, Button.kBumperRight.value).whileHeld(new GoosehookDisengage(m_goosehook));
+                //new JoystickButton(m_operatorController, Button.kStart.value).whenPressed(new ElevatorSolenoidPullIn(m_elevator));
+                //new JoystickButton(m_operatorController, Button.kBack.value).whenPressed(new ElevatorSolenoidPullOut(m_elevator));
 
                 m_drive.setDefaultCommand(new ArcadeDrive(m_drive, m_driverController));
                 m_intake.setDefaultCommand(new IntakeJoystickCommand(m_intake, m_operatorController));
