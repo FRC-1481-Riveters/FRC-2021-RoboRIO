@@ -30,6 +30,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class DriveTrain extends SubsystemBase implements DoubleSupplier {
   /**
@@ -161,7 +162,10 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
     // This method will be called once per scheduler run
     // Update the odometry in the periodic block
     m_odometry.update(m_gyro.getRotation2d(), m_leftDriveEncoder.getPosition(),
-                      m_rightDriveEncoder.getPosition());
+                      -m_rightDriveEncoder.getPosition());
+    SmartDashboard.putNumber("Gyro", m_gyro.getAngle());
+    SmartDashboard.putNumber("Left Drive", m_leftDriveEncoder.getPosition());
+    SmartDashboard.putNumber("Right Drive", -m_rightDriveEncoder.getPosition());
   }
 
   /**
@@ -179,7 +183,7 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
    * @return The current wheel speeds.
    */
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
-    return new DifferentialDriveWheelSpeeds(m_leftDriveEncoder.getVelocity(), m_rightDriveEncoder.getVelocity());
+    return new DifferentialDriveWheelSpeeds(m_leftDriveEncoder.getVelocity(), -m_rightDriveEncoder.getVelocity());
   }
 
   /**

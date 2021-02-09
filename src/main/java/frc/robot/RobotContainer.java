@@ -17,7 +17,6 @@ import frc.robot.commands.ArcadeDrive;
 import frc.robot.commands.AutonRobotDriveDistance;
 import frc.robot.commands.AutonShoot3StackedPowerCellsAndDriveOffLine;
 import frc.robot.commands.AutonSuperTrenchSequence;
-import frc.robot.commands.AutonCircle;
 import frc.robot.commands.CycleCameraFeedCommand;
 import frc.robot.commands.ElevatorSolenoidPullIn;
 import frc.robot.commands.ElevatorSolenoidPullOut;
@@ -61,6 +60,12 @@ import frc.robot.subsystems.Goosehook;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.CyanSus;
+import edu.wpi.first.wpilibj.trajectory.*;
+import edu.wpi.first.wpilibj.trajectory.constraint.*;
+import edu.wpi.first.wpilibj.controller.*;
+import edu.wpi.first.wpilibj.geometry.*;
+import edu.wpi.first.wpilibj2.command.RamseteCommand;
+import java.util.List;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -124,7 +129,7 @@ public class RobotContainer {
 
                 //m_chooser.setDefaultOption("Shoot 3, back robot off line", new AutonShoot3StackedPowerCellsAndDriveOffLine(m_shooter, m_indexer, m_kicker, m_drive));
                 //m_chooser.setDefaultOption("Shoot 3, back robot off line", new AutonSuperTrenchSequence(m_shooter, m_indexer, m_kicker, m_drive, m_intake));
-                m_chooser.setDefaultOption("2 meter circle", new AutonCircle(m_shooter, m_indexer, m_kicker, m_drive, m_intake));
+                m_chooser.setDefaultOption("2 meter circle", AutonCircle());
                 m_chooser.addOption("-= Do nothing =-", new SequentialCommandGroup(new PrintCommand("Do nothing selected for auton."), new WaitCommand(5.0)));
 
                 SmartDashboard.putData("Auto mode", m_chooser);
@@ -218,4 +223,64 @@ public class RobotContainer {
 
                 return m_chooser.getSelected();
         }
-}
+
+        public Command AutonCircle() {
+
+                // Create a voltage constraint to ensure we don't accelerate too fast
+                var autoVoltageConstraint =
+                new DifferentialDriveVoltageConstraint(
+                    new SimpleMotorFeedforward(Constants.ksVolts,
+                                               Constants.kvVoltSecondsPerMeter,
+                                               Constants.kaVoltSecondsSquaredPerMeter),
+                    Constants.kDriveKinematics,
+                    4);
+              
+              // Create config for trajectory
+              TrajectoryConfig config =
+                new TrajectoryConfig(Constants.kMaxSpeedMetersPerSecond,
+                                     Constants.kMaxAccelerationMetersPerSecondSquared)
+                    // Add kinematics to ensure max speed is actually obeyed
+                    .setKinematics(Constants.kDriveKinematics)
+                    // Apply the voltage constraint
+                    .addConstraint(autoVoltageConstraint);
+              
+              // An example trajectory to follow.  All units in meters.
+              Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
+                // Start at the origin facing the +X direction
+                new Pose2d(0, 0, new Rotation2d(0)),
+                // Pass through these two interior waypoints, making an 's' curve path
+                List.of(
+                    new Translation2d(1, 1),
+                    new Translation2d(2, -1)
+                ),
+                // End 3 meters straight ahead of where we started, facing forward
+                new Pose2d(3, 0, new Rotation2d(0)),
+                // Pass config
+                config
+              );
+              
+              RamseteCommand ramseteCommand = new RamseteCommand(
+                exampleTrajectory,
+                m_drive::getPose,
+                new RamseteController(Constants.kRamseteB, Constants.kRamseteZeta),
+                new SimpleMotorFeedforward(Constants.ksVolts,
+                                           Constants.kvVoltSecondsPerMeter,
+                                           Constants.kaVoltSecondsSquaredPerMeter),
+                Constants.kDriveKinematics,
+                m_drive::getWheelSpeeds,
+                new PIDController(Constants.kPDriveVel, 0, 0),
+                new PIDController(Constants.kPDriveVel, 0, 0),
+                // RamseteCommand passes volts to the callback
+                m_drive::tankDriveVolts,
+                m_drive
+              );
+              
+              
+        m_drive.resetOdometry(exampleTrajectory.getInitialPose());
+          System.out.println("MADE IT TO AUTON CIRCLE!!!");
+          // Run path following command, then stop at the end.
+          return ramseteCommand.andThen(() ->  m_drive.tankDriveVolts(0, 0));
+      }
+      }
+      
+
