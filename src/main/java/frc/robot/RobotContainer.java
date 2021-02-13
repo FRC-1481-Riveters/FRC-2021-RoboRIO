@@ -60,6 +60,12 @@ import frc.robot.subsystems.Goosehook;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.CyanSus;
+import edu.wpi.first.wpilibj.trajectory.*;
+import edu.wpi.first.wpilibj.trajectory.constraint.*;
+import edu.wpi.first.wpilibj.controller.*;
+import edu.wpi.first.wpilibj.geometry.*;
+import edu.wpi.first.wpilibj2.command.RamseteCommand;
+import java.util.List;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -70,7 +76,7 @@ import frc.robot.subsystems.CyanSus;
  */
 public class RobotContainer {
         // The robot's subsystems and commands are defined here...
-        private final colorsensor m_colorsensor = new colorsensor();
+        //private final colorsensor m_colorsensor = new colorsensor();
         private final wheelOfFortuneColorSpinny m_wheelOfFortuneColorSpinny = new wheelOfFortuneColorSpinny();
 
         private final Shooter m_shooter = new Shooter();
@@ -78,13 +84,13 @@ public class RobotContainer {
         private final DriveTrain m_drive = new DriveTrain();
 
         private final CameraSubsystem m_cameraSubsystem = new CameraSubsystem(m_drive);
-        private final Elevator m_elevator = new Elevator();
-        private final Goosehook m_goosehook = new Goosehook();
+        //private final Elevator m_elevator = new Elevator();
+        //private final Goosehook m_goosehook = new Goosehook();
 
         private final IRSensor m_intakePowerCellPositionSensor = new IRSensor(IRSensor.SensorType.GP2Y0A41SK0F, 0);
         private final Indexer m_indexer = new Indexer(m_intakePowerCellPositionSensor);
         private final Intake m_intake = new Intake(m_intakePowerCellPositionSensor);
-        private final PowerCellArm m_powerCellArm = new PowerCellArm();
+        //private final PowerCellArm m_powerCellArm = new PowerCellArm();
         private final AutoAssistSubsystem m_autoAssist = new AutoAssistSubsystem();
         private final UltrasonicSensor m_ultrasonicSensor = new UltrasonicSensor();
         //public final CyanSus m_cyanSus = new CyanSus();
@@ -102,11 +108,12 @@ public class RobotContainer {
                 // Configure the button bindings
                 configureButtonBindings();
 
+/*
                 SmartDashboard.putData(new CycleCameraFeedCommand(m_cameraSubsystem));
                 SmartDashboard.putData(new IndexerCarryUpCommand(m_indexer).withTimeout(5.0));
                 SmartDashboard.putData(m_intakePowerCellPositionSensor);
                 SmartDashboard.putData(new AutonRobotDriveDistance(m_drive, -4.0));
-
+*/
                 /*
                  * Add more Autonomous commands to the Dashboard's "Auto Mode" drop down
                  * chooser, m_chooser with the addOption() method, e.g.:
@@ -121,7 +128,8 @@ public class RobotContainer {
                  */
 
                 //m_chooser.setDefaultOption("Shoot 3, back robot off line", new AutonShoot3StackedPowerCellsAndDriveOffLine(m_shooter, m_indexer, m_kicker, m_drive));
-                m_chooser.setDefaultOption("Shoot 3, back robot off line", new AutonSuperTrenchSequence(m_shooter, m_indexer, m_kicker, m_drive, m_intake));
+                //m_chooser.setDefaultOption("Shoot 3, back robot off line", new AutonSuperTrenchSequence(m_shooter, m_indexer, m_kicker, m_drive, m_intake));
+                m_chooser.setDefaultOption("2 meter circle", AutonCircle());
                 m_chooser.addOption("-= Do nothing =-", new SequentialCommandGroup(new PrintCommand("Do nothing selected for auton."), new WaitCommand(5.0)));
 
                 SmartDashboard.putData("Auto mode", m_chooser);
@@ -137,8 +145,8 @@ public class RobotContainer {
         private void configureButtonBindings() {
 
                 /* Wheel of Fortune */
-                new JoystickButton(m_operatorController, Button.kX.value).whileHeld(new RotateOrJogControlPanelCommand(m_wheelOfFortuneColorSpinny, m_operatorController));
-                new JoystickButton(m_operatorController, Button.kB.value).whileHeld(new PositionControlPanelCommand(m_wheelOfFortuneColorSpinny, m_colorsensor, m_operatorController));
+                //new JoystickButton(m_operatorController, Button.kX.value).whileHeld(new RotateOrJogControlPanelCommand(m_wheelOfFortuneColorSpinny, m_operatorController));
+                //new JoystickButton(m_operatorController, Button.kB.value).whileHeld(new PositionControlPanelCommand(m_wheelOfFortuneColorSpinny, m_colorsensor, m_operatorController));
 
                 /* Shoot Power Cells */
                 new JoystickButton(m_driverController, Button.kB.value).whileHeld(// initiation linev
@@ -194,12 +202,12 @@ public class RobotContainer {
                 );
 
                 /* Elevator and goosehook */
-                new JoystickButton(m_driverController, Button.kX.value).whileHeld(new raiseElevator(m_elevator));
-                new JoystickButton(m_driverController, Button.kA.value).whileHeld(new lowerElevator(m_elevator));
-                new JoystickButton(m_driverController, Button.kBumperLeft.value).whileHeld(new GoosehookEngage(m_goosehook));
-                new JoystickButton(m_driverController, Button.kBumperRight.value).whileHeld(new GoosehookDisengage(m_goosehook));
-                new JoystickButton(m_operatorController, Button.kStart.value).whenPressed(new ElevatorSolenoidPullIn(m_elevator));
-                new JoystickButton(m_operatorController, Button.kBack.value).whenPressed(new ElevatorSolenoidPullOut(m_elevator));
+                //new JoystickButton(m_driverController, Button.kX.value).whileHeld(new raiseElevator(m_elevator));
+                //new JoystickButton(m_driverController, Button.kA.value).whileHeld(new lowerElevator(m_elevator));
+                //new JoystickButton(m_driverController, Button.kBumperLeft.value).whileHeld(new GoosehookEngage(m_goosehook));
+                //new JoystickButton(m_driverController, Button.kBumperRight.value).whileHeld(new GoosehookDisengage(m_goosehook));
+                //new JoystickButton(m_operatorController, Button.kStart.value).whenPressed(new ElevatorSolenoidPullIn(m_elevator));
+                //new JoystickButton(m_operatorController, Button.kBack.value).whenPressed(new ElevatorSolenoidPullOut(m_elevator));
 
                 m_drive.setDefaultCommand(new ArcadeDrive(m_drive, m_driverController));
                 m_intake.setDefaultCommand(new IntakeJoystickCommand(m_intake, m_operatorController));
@@ -215,4 +223,64 @@ public class RobotContainer {
 
                 return m_chooser.getSelected();
         }
-}
+
+        public Command AutonCircle() {
+
+                // Create a voltage constraint to ensure we don't accelerate too fast
+                var autoVoltageConstraint =
+                new DifferentialDriveVoltageConstraint(
+                    new SimpleMotorFeedforward(Constants.ksVolts,
+                                               Constants.kvVoltSecondsPerMeter,
+                                               Constants.kaVoltSecondsSquaredPerMeter),
+                    Constants.kDriveKinematics,
+                    4);
+              
+              // Create config for trajectory
+              TrajectoryConfig config =
+                new TrajectoryConfig(Constants.kMaxSpeedMetersPerSecond,
+                                     Constants.kMaxAccelerationMetersPerSecondSquared)
+                    // Add kinematics to ensure max speed is actually obeyed
+                    .setKinematics(Constants.kDriveKinematics)
+                    // Apply the voltage constraint
+                    .addConstraint(autoVoltageConstraint);
+              
+              // An example trajectory to follow.  All units in meters.
+              Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
+                // Start at the origin facing the +X direction
+                new Pose2d(0, 0, new Rotation2d(0)),
+                // Pass through these two interior waypoints, making an 's' curve path
+                List.of(
+                    new Translation2d(1, 1),
+                    new Translation2d(2, -1)
+                ),
+                // End 3 meters straight ahead of where we started, facing forward
+                new Pose2d(3, 0, new Rotation2d(0)),
+                // Pass config
+                config
+              );
+              
+              RamseteCommand ramseteCommand = new RamseteCommand(
+                exampleTrajectory,
+                m_drive::getPose,
+                new RamseteController(Constants.kRamseteB, Constants.kRamseteZeta),
+                new SimpleMotorFeedforward(Constants.ksVolts,
+                                           Constants.kvVoltSecondsPerMeter,
+                                           Constants.kaVoltSecondsSquaredPerMeter),
+                Constants.kDriveKinematics,
+                m_drive::getWheelSpeeds,
+                new PIDController(Constants.kPDriveVel, 0, 0),
+                new PIDController(Constants.kPDriveVel, 0, 0),
+                // RamseteCommand passes volts to the callback
+                m_drive::tankDriveVolts,
+                m_drive
+              );
+              
+              
+        m_drive.resetOdometry(exampleTrajectory.getInitialPose());
+          System.out.println("MADE IT TO AUTON CIRCLE!!!");
+          // Run path following command, then stop at the end.
+          return ramseteCommand.andThen(() ->  m_drive.tankDriveVolts(0, 0));
+      }
+      }
+      
+

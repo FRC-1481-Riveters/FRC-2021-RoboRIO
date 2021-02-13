@@ -7,10 +7,10 @@
 
 package frc.robot.subsystems;
 
-//package edu.wpi.first.wpilibj.examples.ramsetecommand.subsystems;
-
+import com.kauailabs.navx.*;
+import com.kauailabs.navx.frc.AHRS;
+import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
-import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
@@ -30,6 +30,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class DriveTrain extends SubsystemBase implements DoubleSupplier {
   /**
@@ -51,10 +52,18 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
   protected CANPIDController m_leftPIDController;
   protected CANPIDController m_rightPIDController;
 
+  // The gyro sensor
+  private final Gyro m_gyro = new AHRS(SerialPort.Port.kMXP);
+
+  // Odometry class for tracking robot pose
+  private final DifferentialDriveOdometry m_odometry;
+
   /**
    * Create a new drive train subsystem.
    */
   public DriveTrain() {
+    m_odometry = new DifferentialDriveOdometry(m_gyro.getRotation2d());
+
     m_leftFollower.restoreFactoryDefaults();
     m_leftLead.restoreFactoryDefaults();
     m_rightFollower.restoreFactoryDefaults();
@@ -80,7 +89,9 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
 
     m_leftDriveEncoder = m_leftLead.getEncoder();
     m_rightDriveEncoder = m_rightLead.getEncoder();
-
+    m_leftDriveEncoder.setPositionConversionFactor(1.0 / (Constants.drivetrainGearing / Constants.drivetrainWheelRevPerMeter));
+    m_rightDriveEncoder.setPositionConversionFactor(1.0 / (Constants.drivetrainGearing / Constants.drivetrainWheelRevPerMeter));
+    
     m_leftPIDController = m_leftLead.getPIDController();
     m_rightPIDController = m_rightLead.getPIDController();
 
@@ -93,7 +104,6 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
     m_rightPIDController.setI(Constants.kDriveGains.kI);
     m_rightPIDController.setD(Constants.kDriveGains.kD);
     m_rightPIDController.setFF(Constants.kDriveGains.kF);
-
   }
 
   /**
@@ -150,7 +160,118 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    
+    // Update the odometry in the periodic block
+    m_odometry.update(m_gyro.getRotation2d(), m_leftDriveEncoder.getPosition(),
+                      -m_rightDriveEncoder.getPosition());
+    SmartDashboard.putNumber("Gyro", m_gyro.getAngle());
+    SmartDashboard.putNumber("Left Drive", m_leftDriveEncoder.getPosition());
+    SmartDashboard.putNumber("Right Drive", -m_rightDriveEncoder.getPosition());
+  }
+
+  /**
+   * Returns the currently-estimated pose of the robot.
+   *
+   * @return The pose.
+   */
+  public Pose2d getPose() {
+    return m_odometry.getPoseMeters();
+  }
+
+  /**
+   * Returns the current wheel speeds of the robot.
+   *
+   * @return The current wheel speeds.
+   */
+  public DifferentialDriveWheelSpeeds getWheelSpeeds() {
+    return new DifferentialDriveWheelSpeeds(m_leftDriveEncoder.getVelocity(), -m_rightDriveEncoder.getVelocity());
+  }
+
+  /**
+   * Resets the odometry to the specified pose.
+   *
+   * @param pose The pose to which to set the odometry.
+   */
+  public void resetOdometry(Pose2d pose) {
+    resetEncoders();
+    m_odometry.resetPosition(pose, m_gyro.getRotation2d());
+  }
+
+  /**
+   * Controls the left and right sides of the drive directly with voltages.
+   *
+   * @param leftVolts  the commanded left output
+   * @param rightVolts the commanded right output
+   */
+  public void tankDriveVolts(double leftVolts, double rightVolts) {
+    m_leftLead.setVoltage(leftVolts);
+    m_rightLead.setVoltage(-rightVolts);
+    m_drive.feed();
+  }
+
+  public void resetEncoders() {
+    m_leftDriveEncoder.setPosition(0);
+    m_rightDriveEncoder.setPosition(0);
+  }
+
+  /**
+   * Gets the average distance of the two encoders.
+   *
+   * @return the average of the two encoder readings
+   */
+  public double getAverageEncoderDistance() {
+    return (m_leftDriveEncoder.getPosition() + m_rightDriveEncoder.getPosition()) / 2.0;
+  }
+
+  /**
+   * Gets the left drive encoder.
+   *
+   * @return the left drive encoder
+   */
+  public CANEncoder getLeftEncoder() {
+    return m_leftDriveEncoder;
+  }
+
+  /**
+   * Gets the right drive encoder.
+   *
+   * @return the right drive encoder
+   */
+  public CANEncoder getRightEncoder() {
+    return m_rightDriveEncoder;
+  }
+
+  /**
+   * Sets the max output of the drive.  Useful for scaling the drive to drive more slowly.
+   *
+   * @param maxOutput the maximum output to which the drive will be constrained
+   */
+  public void setMaxOutput(double maxOutput) {
+    m_drive.setMaxOutput(maxOutput);
+  }
+
+  /**
+   * Zeroes the heading of the robot.
+   */
+  public void zeroHeading() {
+    m_gyro.reset();
+  }
+
+  /**
+   * Returns the heading of the robot.
+   *
+   * @return the robot's heading in degrees, from -180 to 180
+   */
+  public double getHeading() {
+    return m_gyro.getRotation2d().getDegrees();
+  }
+
+  /**
+   * Returns the turn rate of the robot.
+   *
+   * @return The turn rate of the robot, in degrees per second
+   */
+  public double getTurnRate() {
+    return -m_gyro.getRate();
   }
 
   /*
