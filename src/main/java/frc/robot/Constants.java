@@ -59,7 +59,8 @@ public final class Constants {
 	public static final int intakeDoubleRollerMotorControllerCANId = 14;
 	public static final double intakeMotorSpeed = .35; // percent .75
 	public static final double intakeRunMotorSpeed = .325;
-	public static final double howCloseIsThePowerCell = 21.0; // cm
+	public static final double howCloseIsThePowerCell = 16.0; // cm
+	public static final double powerCellHysteresis = 18.0; // cm
 	
 	/* This is the DigitalOutput port of the intake's LASER distance sensor. */
 	public static final int intakeDistanceSensorDIO = 5;

@@ -13,6 +13,7 @@ import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
+import edu.wpi.first.wpilibj.LinearFilter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -21,7 +22,8 @@ import irsensor.IRSensor;
 public class Intake extends SubsystemBase {
   private static WPI_TalonSRX m_intake = new WPI_TalonSRX(Constants.intakeMotorControllerCANId);
   private static WPI_TalonSRX m_intakeDoubleRoller = new WPI_TalonSRX(Constants.intakeDoubleRollerMotorControllerCANId);
-
+  LinearFilter intakeFiltered =  LinearFilter.movingAverage(10);
+  private static double intakeSensor;
   protected IRSensor m_powerDetectorSensor;
 
   /**
@@ -42,7 +44,7 @@ public class Intake extends SubsystemBase {
     m_intakeDoubleRoller.configNominalOutputReverse(0, Constants.kTimeoutMs);
     m_intakeDoubleRoller.configPeakOutputForward(1, Constants.kTimeoutMs);
     m_intakeDoubleRoller.configPeakOutputReverse(-1, Constants.kTimeoutMs);
-
+    intakeSensor = 0.0;
     setSpeed(0.0);
     m_intake.setInverted(true);
     //m_intakeDoubleRoller.setInverted(true);
@@ -56,7 +58,7 @@ public class Intake extends SubsystemBase {
    * entrance to the indexer in centimeters.
    */
   public double getDistanceToPowerCell() {
-    return m_powerDetectorSensor.getRangeCm();
+    return intakeSensor;
   }
 
   public DoubleSupplier getDistanceToPowerCellMeasurer() {
@@ -66,7 +68,9 @@ public class Intake extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    SmartDashboard.putNumber("Intake Power Cell detector range (cm)", m_powerDetectorSensor.getRangeCm());
+    intakeSensor = intakeFiltered.calculate(m_powerDetectorSensor.getRangeCm());
+
+    SmartDashboard.putNumber("Intake Power Cell detector range (cm)", intakeSensor);
 
   }
 }
