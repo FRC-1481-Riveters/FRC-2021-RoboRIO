@@ -54,13 +54,15 @@ public class IndexerStackOnePowerCell extends CommandBase {
     double distanceToMovePowerCell;
     double distanceThePowerCellHasAlreadyTravelled;
 
-    if (distanceFromSensorToPowerCell > 9.0 && distanceFromSensorToPowerCell < 25.0) {
+    if (distanceFromSensorToPowerCell > 9.0 && distanceFromSensorToPowerCell < 10.0)  {
       /*
        * These look like a plausible number from our distance sensor. Let's use this
        * number to offset the distance the Indexer moves *this* Power Cell into the
        * indexer to its first stacked position (because the Power Cell has already
        * moved a bit closer into the Indexer before we even started this command, so
        * account for that.)
+       * 
+       * 2nd was 25
        */
 
       distanceThePowerCellHasAlreadyTravelled = Math.max(0.0,

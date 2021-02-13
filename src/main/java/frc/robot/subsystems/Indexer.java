@@ -13,6 +13,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.networktables.EntryListenerFlags;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -243,6 +244,7 @@ public class Indexer extends SubsystemBase {
 
     double remainingDistanceToTargetInCm = encoderCountsToCm(
         m_positionSetpoint - (int) m_upperIndexer.getSelectedSensorPosition());
+        SmartDashboard.putNumber("remaining distance to target (cm)", remainingDistanceToTargetInCm);
 
     if (Math.abs(remainingDistanceToTargetInCm) < Constants.indexerToleratedPositionError) {
       return true;

@@ -13,6 +13,8 @@ import frc.robot.subsystems.Intake;
 
 public class IntakePositionPowerCellCommand extends CommandBase {
   private Intake m_intake;
+  //private int intakeDelay;
+  private boolean intakeHysteresis = true;
   /**
    * Creates a new IntakePositionPowerCellCommand.
    */
@@ -42,9 +44,34 @@ public class IntakePositionPowerCellCommand extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    if(m_intake.getDistanceToPowerCell() < Constants.howCloseIsThePowerCell){
+    if(m_intake.getDistanceToPowerCell() < Constants.howCloseIsThePowerCell /*&& intakeHysteresis == true*/){
+      //intakeHysteresis = false;
       return true;
     }
-    else return false;
+  // else if (m_intake.getDistanceToPowerCell() > 18 /*&& intakeHysteresis == false*/) {
+    //intakeHysteresis = true;
+     // return false;
+   // }
+    else {
+      return false;
+    }
+/*
+      intakeDelay = intakeDelay + 1;
+      if( intakeDelay > 50 )
+      {
+        intakeDelay = 0;
+        return true;
+      }
+      else
+      {
+        return false;
+      }
+    }
+    else
+    {
+      intakeDelay = 0;
+      return false;
+    } 
+    */
   }
 }

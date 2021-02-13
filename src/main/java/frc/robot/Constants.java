@@ -60,7 +60,8 @@ public final class Constants {
 	public static final int intakeDoubleRollerMotorControllerCANId = 14;
 	public static final double intakeMotorSpeed = .35; // percent .75
 	public static final double intakeRunMotorSpeed = .325;
-	public static final double howCloseIsThePowerCell = 21.0; // cm
+	public static final double howCloseIsThePowerCell = 16.0; // cm
+	public static final double powerCellHysteresis = 18.0; // cm
 	
 	/* This is the DigitalOutput port of the intake's LASER distance sensor. */
 	public static final int intakeDistanceSensorDIO = 5;
@@ -212,7 +213,7 @@ public final class Constants {
 	 * tolerated error in distance to the target when moving the belts to a fixed
 	 * position
 	 */
-	public static final double indexerToleratedPositionError = 0.5;
+	public static final double indexerToleratedPositionError = 1.0;
 	/*
 	 * TalonSRX's PIDF gains are calculated base on 1023 as the maximum output,
 	 * which is 100% duty cycle, which is all of the Talon's speed and capability.
