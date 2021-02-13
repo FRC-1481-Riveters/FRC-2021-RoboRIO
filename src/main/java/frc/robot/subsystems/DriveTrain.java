@@ -9,7 +9,7 @@ package frc.robot.subsystems;
 
 import com.kauailabs.navx.*;
 import com.kauailabs.navx.frc.AHRS;
-import edu.wpi.first.wpilibj.SerialPort;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
@@ -31,6 +31,8 @@ import com.revrobotics.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.networktables.*;
+import edu.wpi.first.wpilibj.geometry.*;
 
 public class DriveTrain extends SubsystemBase implements DoubleSupplier {
   /**
@@ -52,8 +54,12 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
   protected CANPIDController m_leftPIDController;
   protected CANPIDController m_rightPIDController;
 
+  //NetworkTableEntry m_xEntry = NetworkTableInstance.getDefault().getTable("troubleshooting").getEntry("X");
+  //NetworkTableEntry m_yEntry = NetworkTableInstance.getDefault().getTable("troubleshooting").getEntry("Y");
+
+
   // The gyro sensor
-  private final Gyro m_gyro = new AHRS(SerialPort.Port.kMXP);
+  private final Gyro m_gyro = new AHRS(SPI.Port.kMXP);
 
   // Odometry class for tracking robot pose
   private final DifferentialDriveOdometry m_odometry;
@@ -161,11 +167,17 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
   public void periodic() {
     // This method will be called once per scheduler run
     // Update the odometry in the periodic block
-    m_odometry.update(m_gyro.getRotation2d(), m_leftDriveEncoder.getPosition(),
-                      -m_rightDriveEncoder.getPosition());
-    SmartDashboard.putNumber("Gyro", m_gyro.getAngle());
-    SmartDashboard.putNumber("Left Drive", m_leftDriveEncoder.getPosition());
-    SmartDashboard.putNumber("Right Drive", -m_rightDriveEncoder.getPosition());
+    m_odometry.update(Rotation2d.fromDegrees(getHeading()), -m_leftDriveEncoder.getPosition(),
+    m_rightDriveEncoder.getPosition());
+
+    SmartDashboard.putNumber("Left Encoder", -m_leftDriveEncoder.getPosition());
+    SmartDashboard.putNumber("Right Encoder", m_rightDriveEncoder.getPosition());
+    SmartDashboard.putNumber("gyro degrees",  getHeading());
+    SmartDashboard.putNumber("odo degrees",   m_odometry.getPoseMeters().getRotation().getDegrees());
+
+    var translation = m_odometry.getPoseMeters().getTranslation();
+    SmartDashboard.putNumber("X", translation.getX());
+    SmartDashboard.putNumber("Y", translation.getY());
   }
 
   /**
