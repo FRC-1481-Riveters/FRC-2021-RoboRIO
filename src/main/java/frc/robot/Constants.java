@@ -118,10 +118,10 @@ public final class Constants {
 	public static final int frontRightMotor = 2;
 	public static final int rearRightMotor = 3;
 	public static final double closedLoopRampRate = 0.1; // Volts / msS
-	public static final double ksVolts = 0.18;
-    public static final double kvVoltSecondsPerMeter = 0.00439;
-	public static final double kaVoltSecondsSquaredPerMeter = 0.000699;
-	public static final double kPDriveVel = 0.0328;
+	public static final double ksVolts = 0.132;
+    public static final double kvVoltSecondsPerMeter = 0.0937;
+	public static final double kaVoltSecondsSquaredPerMeter = 0.0126;
+	public static final double kPDriveVel = 0.0212;
 	public static final double kTrackwidthMeters = 0.5715;
 	public static final double kMaxSpeedMetersPerSecond = 3.6576;
 	public static final double kMaxAccelerationMetersPerSecondSquared = 7.0;

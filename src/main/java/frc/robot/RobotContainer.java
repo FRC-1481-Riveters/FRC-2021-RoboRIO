@@ -224,6 +224,12 @@ public class RobotContainer {
                 return m_chooser.getSelected();
         }
 
+        public void resetPose() {
+                m_drive.resetOdometry( new Pose2d(0, 0, new Rotation2d(0) ) );
+                m_drive.resetEncoders();
+                m_drive.zeroHeading();        
+        }
+ 
         public Command AutonCircle() {
 
                 // Create a voltage constraint to ensure we don't accelerate too fast
@@ -233,7 +239,7 @@ public class RobotContainer {
                                                Constants.kvVoltSecondsPerMeter,
                                                Constants.kaVoltSecondsSquaredPerMeter),
                     Constants.kDriveKinematics,
-                    4);
+                    1.5 /* slow for  now!! */ );
               
               // Create config for trajectory
               TrajectoryConfig config =
@@ -275,9 +281,6 @@ public class RobotContainer {
                 m_drive
               );
               
-              
-        m_drive.resetOdometry(exampleTrajectory.getInitialPose());
-          System.out.println("MADE IT TO AUTON CIRCLE!!!");
           // Run path following command, then stop at the end.
           return ramseteCommand.andThen(() ->  m_drive.tankDriveVolts(0, 0));
       }

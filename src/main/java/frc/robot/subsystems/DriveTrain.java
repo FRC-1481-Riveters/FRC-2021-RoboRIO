@@ -51,9 +51,6 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
   protected CANEncoder m_leftDriveEncoder;
   protected CANEncoder m_rightDriveEncoder;
 
-  protected CANPIDController m_leftPIDController;
-  protected CANPIDController m_rightPIDController;
-
   //NetworkTableEntry m_xEntry = NetworkTableInstance.getDefault().getTable("troubleshooting").getEntry("X");
   //NetworkTableEntry m_yEntry = NetworkTableInstance.getDefault().getTable("troubleshooting").getEntry("Y");
 
@@ -96,20 +93,12 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
     m_leftDriveEncoder = m_leftLead.getEncoder();
     m_rightDriveEncoder = m_rightLead.getEncoder();
     m_leftDriveEncoder.setPositionConversionFactor(1.0 / (Constants.drivetrainGearing / Constants.drivetrainWheelRevPerMeter));
+    m_leftDriveEncoder.setVelocityConversionFactor(1.0 / (Constants.drivetrainGearing / Constants.drivetrainWheelRevPerMeter));
     m_rightDriveEncoder.setPositionConversionFactor(1.0 / (Constants.drivetrainGearing / Constants.drivetrainWheelRevPerMeter));
+    m_rightDriveEncoder.setVelocityConversionFactor(1.0 / (Constants.drivetrainGearing / Constants.drivetrainWheelRevPerMeter));
     
-    m_leftPIDController = m_leftLead.getPIDController();
-    m_rightPIDController = m_rightLead.getPIDController();
-
-    m_leftPIDController.setP(Constants.kDriveGains.kP);
-    m_leftPIDController.setI(Constants.kDriveGains.kI);
-    m_leftPIDController.setD(Constants.kDriveGains.kD);
-    m_leftPIDController.setFF(Constants.kDriveGains.kF);
-
-    m_rightPIDController.setP(Constants.kDriveGains.kP);
-    m_rightPIDController.setI(Constants.kDriveGains.kI);
-    m_rightPIDController.setD(Constants.kDriveGains.kD);
-    m_rightPIDController.setFF(Constants.kDriveGains.kF);
+    SmartDashboard.putNumber("leftVolts", 0.0);
+    SmartDashboard.putNumber("rightVolts", 0.0);
   }
 
   /**
@@ -130,21 +119,6 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
    */
   public void driveAtSpeed(double leftSpeedInMetersPerSecond, double rightSpeedInMetersPerSecond) {
 
-    /*
-     * The Spark Maxs by default deal with speeds in RPM. So, convert the meters per
-     * second that this routine accepts for each of the motor speeds into RPM before
-     * telling each of the motors to spin at that speed.
-     */
-
-    double leftMotorRPM = meterPerSecondToRPM(leftSpeedInMetersPerSecond);
-    m_leftPIDController.setReference(-leftMotorRPM, ControlType.kVelocity);
-
-    /*
-     * By convention, the Right motor is inverted. So, invert this motor while under
-     * direction control of this PID
-     */
-    double rightMotorRPM = meterPerSecondToRPM(-1.0 * rightSpeedInMetersPerSecond);
-    m_rightPIDController.setReference(-rightMotorRPM, ControlType.kVelocity);
   }
 
   protected double meterPerSecondToRPM(double metersPerSecond) {
@@ -195,7 +169,7 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
    * @return The current wheel speeds.
    */
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
-    return new DifferentialDriveWheelSpeeds(m_leftDriveEncoder.getVelocity(), -m_rightDriveEncoder.getVelocity());
+    return new DifferentialDriveWheelSpeeds(-m_leftDriveEncoder.getVelocity(), m_rightDriveEncoder.getVelocity());
   }
 
   /**
@@ -215,7 +189,13 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
    * @param rightVolts the commanded right output
    */
   public void tankDriveVolts(double leftVolts, double rightVolts) {
+    SmartDashboard.putNumber("leftVolts", leftVolts);
+    SmartDashboard.putNumber("rightVolts", rightVolts);
+    if( leftVolts > 1 ) leftVolts = 1;
+    if( leftVolts < -1 ) leftVolts = -1;
     m_leftLead.setVoltage(leftVolts);
+    if( rightVolts > 1 ) rightVolts = 1;
+    if( rightVolts < -1 ) rightVolts = -1;
     m_rightLead.setVoltage(-rightVolts);
     m_drive.feed();
   }
@@ -223,33 +203,6 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
   public void resetEncoders() {
     m_leftDriveEncoder.setPosition(0);
     m_rightDriveEncoder.setPosition(0);
-  }
-
-  /**
-   * Gets the average distance of the two encoders.
-   *
-   * @return the average of the two encoder readings
-   */
-  public double getAverageEncoderDistance() {
-    return (m_leftDriveEncoder.getPosition() + m_rightDriveEncoder.getPosition()) / 2.0;
-  }
-
-  /**
-   * Gets the left drive encoder.
-   *
-   * @return the left drive encoder
-   */
-  public CANEncoder getLeftEncoder() {
-    return m_leftDriveEncoder;
-  }
-
-  /**
-   * Gets the right drive encoder.
-   *
-   * @return the right drive encoder
-   */
-  public CANEncoder getRightEncoder() {
-    return m_rightDriveEncoder;
   }
 
   /**
@@ -277,15 +230,6 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
     return m_gyro.getRotation2d().getDegrees();
   }
 
-  /**
-   * Returns the turn rate of the robot.
-   *
-   * @return The turn rate of the robot, in degrees per second
-   */
-  public double getTurnRate() {
-    return -m_gyro.getRate();
-  }
-
   /*
    * Compute the distance the robot has travelled since its last reset
    *
@@ -299,7 +243,7 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
    */
   @Override
   public double getAsDouble() {
-    double averageNEORevolutionsTravelled = (m_leftDriveEncoder.getPosition() - m_rightDriveEncoder.getPosition())
+    double averageNEORevolutionsTravelled = (-m_leftDriveEncoder.getPosition() + m_rightDriveEncoder.getPosition())
         / 2.0;
 
     return (averageNEORevolutionsTravelled * Constants.driveTrainInchesPerEncoderCounts);
