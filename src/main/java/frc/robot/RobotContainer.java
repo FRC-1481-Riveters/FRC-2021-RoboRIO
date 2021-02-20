@@ -235,18 +235,19 @@ public class RobotContainer {
                 // Create a voltage constraint to ensure we don't accelerate too fast
                 var autoVoltageConstraint =
                 new DifferentialDriveVoltageConstraint(
-                    new SimpleMotorFeedforward( 0.22, //!*!*!*Constants.ksVolts,
-                                               2, //!*!*!*Constants.kvVoltSecondsPerMeter,
-                                               0.2), //!*!*!*Constants.kaVoltSecondsSquaredPerMeter),
+                    new SimpleMotorFeedforward( Constants.ksVolts,
+                                               Constants.kvVoltSecondsPerMeter,
+                                               Constants.kaVoltSecondsSquaredPerMeter),
                     Constants.kDriveKinematics,
-                    3.0 /* slow for  now!! */ );
+                    6.0 );
               
               // Create config for trajectory
               TrajectoryConfig config =
-                new TrajectoryConfig(3, //!*!*!*Constants.kMaxSpeedMetersPerSecond,
-                                     3) //!*!*!*Constants.kMaxAccelerationMetersPerSecondSquared)
+                new TrajectoryConfig(Constants.kMaxSpeedMetersPerSecond,
+                                     Constants.kMaxAccelerationMetersPerSecondSquared)
                     // Add kinematics to ensure max speed is actually obeyed
                     .setKinematics(Constants.kDriveKinematics)
+                    .addConstraint(new CentripetalAccelerationConstraint(100))
                     // Apply the voltage constraint
                     .addConstraint(autoVoltageConstraint);
               
@@ -256,11 +257,12 @@ public class RobotContainer {
                 new Pose2d(0, 0, new Rotation2d(0)),
                 // Pass through these two interior waypoints, making an 's' curve path
                 List.of(
-                    new Translation2d(1, 1),
-                    new Translation2d(2, -1)
+                        new Translation2d(2, 0),
+                        new Translation2d(2, -2),
+                        new Translation2d (0, -2)
                 ),
                 // End 3 meters straight ahead of where we started, facing forward
-                new Pose2d(3, 0, new Rotation2d(0)),
+                new Pose2d(0, 0, new Rotation2d(0)),
                 // Pass config
                 config
               );
@@ -269,9 +271,9 @@ public class RobotContainer {
                 exampleTrajectory,
                 m_drive::getPose,
                 new RamseteController(Constants.kRamseteB, Constants.kRamseteZeta),
-                new SimpleMotorFeedforward(0.22, //!*!*!*Constants.ksVolts,
-                                           2, //!*!*!*Constants.kvVoltSecondsPerMeter,
-                                           0.2), //!*!*!*Constants.kaVoltSecondsSquaredPerMeter),
+                new SimpleMotorFeedforward(Constants.ksVolts,
+                                           Constants.kvVoltSecondsPerMeter,
+                                           Constants.kaVoltSecondsSquaredPerMeter),
                 Constants.kDriveKinematics,
                 m_drive::getWheelSpeeds,
                 new PIDController(Constants.kPDriveVel, 0, 0),

@@ -93,9 +93,9 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
     m_leftDriveEncoder = m_leftLead.getEncoder();
     m_rightDriveEncoder = m_rightLead.getEncoder();
     m_leftDriveEncoder.setPositionConversionFactor(1.0 / (Constants.drivetrainGearing / Constants.drivetrainWheelRevPerMeter));
-    m_leftDriveEncoder.setVelocityConversionFactor(1.0 / (Constants.drivetrainGearing / Constants.drivetrainWheelRevPerMeter));
+    m_leftDriveEncoder.setVelocityConversionFactor((Constants.drivetrainWheelRevPerMeter / Constants.drivetrainGearing) / 60.0);
     m_rightDriveEncoder.setPositionConversionFactor(1.0 / (Constants.drivetrainGearing / Constants.drivetrainWheelRevPerMeter));
-    m_rightDriveEncoder.setVelocityConversionFactor(1.0 / (Constants.drivetrainGearing / Constants.drivetrainWheelRevPerMeter));
+    m_rightDriveEncoder.setVelocityConversionFactor((Constants.drivetrainWheelRevPerMeter / Constants.drivetrainGearing) / 60.0);
     
     SmartDashboard.putNumber("leftVolts", 0.0);
     SmartDashboard.putNumber("rightVolts", 0.0);
@@ -149,6 +149,8 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
     SmartDashboard.putNumber("Right Encoder", m_rightDriveEncoder.getPosition());
     SmartDashboard.putNumber("gyro degrees",  getHeading());
     SmartDashboard.putNumber("odo degrees",   m_odometry.getPoseMeters().getRotation().getDegrees());
+    SmartDashboard.putNumber("left velocity", -m_leftDriveEncoder.getVelocity());
+    SmartDashboard.putNumber("right velocity", m_rightDriveEncoder.getVelocity());
 
     var translation = m_odometry.getPoseMeters().getTranslation();
     SmartDashboard.putNumber("X", translation.getX());
@@ -180,6 +182,7 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
    */
   public void resetOdometry(Pose2d pose) {
     resetEncoders();
+    m_gyro.reset();
     m_odometry.resetPosition(pose, m_gyro.getRotation2d());
   }
 
@@ -190,14 +193,14 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
    * @param rightVolts the commanded right output
    */
   public void tankDriveVolts(double leftVolts, double rightVolts) {
-    SmartDashboard.putNumber("leftVolts", leftVolts);
+    SmartDashboard.putNumber("leftVolts", -leftVolts);
     SmartDashboard.putNumber("rightVolts", rightVolts);
-    if( leftVolts > 3 ) leftVolts = 3;
-    if( leftVolts < -3 ) leftVolts = -3;
-    m_leftLead.setVoltage(leftVolts);
-    if( rightVolts > 3 ) rightVolts = 3;
-    if( rightVolts < -3 ) rightVolts = -3;
-    m_rightLead.setVoltage(-rightVolts);
+//    if( leftVolts > 3 ) leftVolts = 3;
+///    if( leftVolts < -3 ) leftVolts = -3;
+    m_leftLead.setVoltage(-leftVolts);
+//    if( rightVolts > 3 ) rightVolts = 3;
+//    if( rightVolts < -3 ) rightVolts = -3;
+    m_rightLead.setVoltage(rightVolts);
     m_drive.feed();
   }
 
