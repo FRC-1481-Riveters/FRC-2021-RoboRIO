@@ -141,8 +141,9 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
   public void periodic() {
     // This method will be called once per scheduler run
     // Update the odometry in the periodic block
-    m_odometry.update(Rotation2d.fromDegrees(getHeading()), -m_leftDriveEncoder.getPosition(),
-    m_rightDriveEncoder.getPosition());
+    m_odometry.update( m_gyro.getRotation2d(), 
+      -m_leftDriveEncoder.getPosition(),
+      m_rightDriveEncoder.getPosition());
 
     SmartDashboard.putNumber("Left Encoder", -m_leftDriveEncoder.getPosition());
     SmartDashboard.putNumber("Right Encoder", m_rightDriveEncoder.getPosition());
@@ -191,11 +192,11 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
   public void tankDriveVolts(double leftVolts, double rightVolts) {
     SmartDashboard.putNumber("leftVolts", leftVolts);
     SmartDashboard.putNumber("rightVolts", rightVolts);
-    if( leftVolts > 1 ) leftVolts = 1;
-    if( leftVolts < -1 ) leftVolts = -1;
+    if( leftVolts > 3 ) leftVolts = 3;
+    if( leftVolts < -3 ) leftVolts = -3;
     m_leftLead.setVoltage(leftVolts);
-    if( rightVolts > 1 ) rightVolts = 1;
-    if( rightVolts < -1 ) rightVolts = -1;
+    if( rightVolts > 3 ) rightVolts = 3;
+    if( rightVolts < -3 ) rightVolts = -3;
     m_rightLead.setVoltage(-rightVolts);
     m_drive.feed();
   }
@@ -212,13 +213,6 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
    */
   public void setMaxOutput(double maxOutput) {
     m_drive.setMaxOutput(maxOutput);
-  }
-
-  /**
-   * Zeroes the heading of the robot.
-   */
-  public void zeroHeading() {
-    m_gyro.reset();
   }
 
   /**
