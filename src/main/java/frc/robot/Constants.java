@@ -111,13 +111,13 @@ public final class Constants {
 	public static final int relayElevatorSolenoid = 0;
 
 	/* Drive --------------------------------------- */
-	public static final double driveMotorRampRate = 0.5; // number = seconds till full speed
+	public static final double driveMotorRampRate = 0.001; // number = seconds till full speed
 	public static final double rotationInQuarter = 0.7;
 	public static final int frontLeftMotor = 13;
 	public static final int rearLeftMotor = 12;
 	public static final int frontRightMotor = 2;
 	public static final int rearRightMotor = 3;
-	public static final double closedLoopRampRate = 0.1; // Volts / msS
+	public static final double closedLoopRampRate = 0.001; // Volts / msS
 	public static final double ksVolts = 0.132;
     public static final double kvVoltSecondsPerMeter = 0.0937;
 	public static final double kaVoltSecondsSquaredPerMeter = 0.0126;
