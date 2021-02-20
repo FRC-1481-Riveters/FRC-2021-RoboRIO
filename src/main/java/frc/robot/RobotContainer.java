@@ -227,7 +227,7 @@ public class RobotContainer {
         public void resetPose() {
                 m_drive.resetOdometry( new Pose2d(0, 0, new Rotation2d(0) ) );
                 m_drive.resetEncoders();
-                m_drive.zeroHeading();        
+                //m_drive.zeroHeading();        
         }
  
         public Command AutonCircle() {
@@ -235,16 +235,16 @@ public class RobotContainer {
                 // Create a voltage constraint to ensure we don't accelerate too fast
                 var autoVoltageConstraint =
                 new DifferentialDriveVoltageConstraint(
-                    new SimpleMotorFeedforward(Constants.ksVolts,
-                                               Constants.kvVoltSecondsPerMeter,
-                                               Constants.kaVoltSecondsSquaredPerMeter),
+                    new SimpleMotorFeedforward( 0.22, //!*!*!*Constants.ksVolts,
+                                               2, //!*!*!*Constants.kvVoltSecondsPerMeter,
+                                               0.2), //!*!*!*Constants.kaVoltSecondsSquaredPerMeter),
                     Constants.kDriveKinematics,
-                    1.5 /* slow for  now!! */ );
+                    3.0 /* slow for  now!! */ );
               
               // Create config for trajectory
               TrajectoryConfig config =
-                new TrajectoryConfig(Constants.kMaxSpeedMetersPerSecond,
-                                     Constants.kMaxAccelerationMetersPerSecondSquared)
+                new TrajectoryConfig(3, //!*!*!*Constants.kMaxSpeedMetersPerSecond,
+                                     3) //!*!*!*Constants.kMaxAccelerationMetersPerSecondSquared)
                     // Add kinematics to ensure max speed is actually obeyed
                     .setKinematics(Constants.kDriveKinematics)
                     // Apply the voltage constraint
@@ -269,9 +269,9 @@ public class RobotContainer {
                 exampleTrajectory,
                 m_drive::getPose,
                 new RamseteController(Constants.kRamseteB, Constants.kRamseteZeta),
-                new SimpleMotorFeedforward(Constants.ksVolts,
-                                           Constants.kvVoltSecondsPerMeter,
-                                           Constants.kaVoltSecondsSquaredPerMeter),
+                new SimpleMotorFeedforward(0.22, //!*!*!*Constants.ksVolts,
+                                           2, //!*!*!*Constants.kvVoltSecondsPerMeter,
+                                           0.2), //!*!*!*Constants.kaVoltSecondsSquaredPerMeter),
                 Constants.kDriveKinematics,
                 m_drive::getWheelSpeeds,
                 new PIDController(Constants.kPDriveVel, 0, 0),
