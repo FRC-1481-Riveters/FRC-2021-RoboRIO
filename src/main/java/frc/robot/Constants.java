@@ -79,7 +79,7 @@ public final class Constants {
 	public static final int shooterMotorControllerCANId = 1;
 	public static final double shooterIntendedSpeedTolerance = 0.02;
 	public static final double shooterYeetSpeedInitiation = 4100.0; // RPM
-	public static final double shooterYeetSpeedWall = 3650.0; // RPM; OG 5000.0; max motor speed 5676
+	public static final double shooterYeetSpeedWall = 3500.0; // RPM; OG 5000.0; max motor speed 5676
 
 	/* Cameras ---------------------------------------- */
 	public static final int visionCameraPort = 0;

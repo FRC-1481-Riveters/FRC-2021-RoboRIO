@@ -247,22 +247,42 @@ public class RobotContainer {
                                      Constants.kMaxAccelerationMetersPerSecondSquared)
                     // Add kinematics to ensure max speed is actually obeyed
                     .setKinematics(Constants.kDriveKinematics)
-                    .addConstraint(new CentripetalAccelerationConstraint(100))
+                    .addConstraint(new CentripetalAccelerationConstraint(0.1))
                     // Apply the voltage constraint
                     .addConstraint(autoVoltageConstraint);
               
               // An example trajectory to follow.  All units in meters.
               Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
                 // Start at the origin facing the +X direction
-                new Pose2d(0, 0, new Rotation2d(0)),
+                new Pose2d(0, -0.8, new Rotation2d(0)),
                 // Pass through these two interior waypoints, making an 's' curve path
                 List.of(
-                        new Translation2d(2, 0),
-                        new Translation2d(2, -2),
-                        new Translation2d (0, -2)
+               //         new Translation2d(2, 0),
+               //         new Translation2d(2, -2),
+               //         new Translation2d (0, -2)
+                //BIG BOY W PATH 
+                //       new Translation2d (1,-1)  ,
+                //       new Translation2d(1.5,-1),
+                //       new Translation2d(2,0),
+                //       new Translation2d (2.5,0),
+                //       new Translation2d(3,-1),
+                //       new Translation2d(3.5,-1)
+                //       new  Translation2d()
+                // Salome Path
+                        new Translation2d(1, 0.8),
+                        new Translation2d(1.68, 2),
+                        new Translation2d(5.2, 2),
+                        new Translation2d(5.74, 0.8),
+                        new Translation2d(6.56, -0.8),
+                        new Translation2d(7.44, 0.8),
+                        new Translation2d(6.56, 2),
+                        new Translation2d(5.74, 0.8),
+                        new Translation2d(5.2, -0.8),
+                        new Translation2d(1.68, -0.8),
+                        new Translation2d(1, 0.8)
                 ),
                 // End 3 meters straight ahead of where we started, facing forward
-                new Pose2d(0, 0, new Rotation2d(0)),
+                new Pose2d(0, 2, new Rotation2d(Math.PI)),
                 // Pass config
                 config
               );
