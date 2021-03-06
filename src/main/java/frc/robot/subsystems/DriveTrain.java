@@ -59,7 +59,7 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
   private final Gyro m_gyro = new AHRS(SPI.Port.kMXP);
 
   // Odometry class for tracking robot pose
-  private final DifferentialDriveOdometry m_odometry;
+  public final DifferentialDriveOdometry m_odometry;
 
   /**
    * Create a new drive train subsystem.
@@ -152,9 +152,9 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
     SmartDashboard.putNumber("left velocity", -m_leftDriveEncoder.getVelocity());
     SmartDashboard.putNumber("right velocity", m_rightDriveEncoder.getVelocity());
 
-    var translation = m_odometry.getPoseMeters().getTranslation();
-    SmartDashboard.putNumber("X", translation.getX());
-    SmartDashboard.putNumber("Y", translation.getY());
+    //var translation = m_odometry.getPoseMeters().getTranslation();
+    SmartDashboard.putNumber("X", m_odometry.getPoseMeters().getX());
+    SmartDashboard.putNumber("Y", m_odometry.getPoseMeters().getY());
   }
 
   /**

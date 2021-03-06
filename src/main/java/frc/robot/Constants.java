@@ -79,7 +79,11 @@ public final class Constants {
 	public static final int shooterMotorControllerCANId = 1;
 	public static final double shooterIntendedSpeedTolerance = 0.02;
 	public static final double shooterYeetSpeedInitiation = 4100.0; // RPM
-	public static final double shooterYeetSpeedWall = 3500.0; // RPM; OG 5000.0; max motor speed 5676
+	public static final double shooterYeetSpeedWall = 3250.0; // RPM; OG 5000.0; max motor speed 5676
+	/*
+	GREEN ZONE = 3500
+	
+	*/
 
 	/* Cameras ---------------------------------------- */
 	public static final int visionCameraPort = 0;
@@ -119,10 +123,10 @@ public final class Constants {
 	public static final int rearRightMotor = 3;
 	public static final double closedLoopRampRate = 0.001; // Volts / msS
 
-	public static final double ksVolts = 0.195;
-    public static final double kvVoltSecondsPerMeter = 5.53;
-	public static final double kaVoltSecondsSquaredPerMeter = 0.887;
-	public static final double kPDriveVel = 0.111;
+	public static final double ksVolts = 0.217;
+    public static final double kvVoltSecondsPerMeter = 6.43;
+	public static final double kaVoltSecondsSquaredPerMeter = 1.07;
+	public static final double kPDriveVel = 0.08; //5.41;
 	public static final double kTrackwidthMeters = 0.5715;
 	public static final double kMaxSpeedMetersPerSecond = 3.6576;
 	public static final double kMaxAccelerationMetersPerSecondSquared = 1;
@@ -131,8 +135,10 @@ public final class Constants {
 	public static final double kRamseteZeta = 0.7;
     public static final DifferentialDriveKinematics kDriveKinematics =
 		new DifferentialDriveKinematics(kTrackwidthMeters);
-	public static final double drivetrainGearing = 10.111111;
-	public static final double drivetrainWheelRevPerMeter = 0.47798;
+	// Gear ratio is derived from:
+	// (main gear teeth * pulses per NEO revolution) / (outer gear * pinion teeth)
+	public static final double drivetrainGearing = ((42.0 * 56.0) / (18.0 * 11.0));
+	public static final double drivetrainWheelRevPerMeter = 0.474788;
 	public static final double driveTireDiameterInMeters = Units.inchesToMeters(8.0);
 	public static final double minJoystickActiveValue = 0.05; 
 

@@ -24,6 +24,7 @@ import frc.robot.commands.GoosehookDisengage;
 import frc.robot.commands.GoosehookEngage;
 import frc.robot.commands.IndexerCarryUpCommand;
 import frc.robot.commands.IndexerJoystickCommand;
+import frc.robot.commands.IndexerMoveUpOne;
 import frc.robot.commands.IndexerSpitOutCommand;
 import frc.robot.commands.IndexerStackOnePowerCell;
 import frc.robot.commands.IntakeDropOffCommand;
@@ -66,6 +67,11 @@ import edu.wpi.first.wpilibj.controller.*;
 import edu.wpi.first.wpilibj.geometry.*;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import java.util.List;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
+import edu.wpi.first.wpilibj.Filesystem;
+import java.io.IOException;
+import java.nio.file.*;
+import edu.wpi.first.wpilibj.DriverStation;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -165,9 +171,11 @@ public class RobotContainer {
                         new SequentialCommandGroup( //
                                 new ShooterYeetCommand(m_shooter, Constants.shooterYeetSpeedWall), //
                                 new ParallelCommandGroup( //
-                                        new IndexerCarryUpCommand(m_indexer), //
-                                        new KickerAdvanceCommand(m_kicker, m_shooter) //
-                                ) //
+                                        //new IndexerCarryUpCommand(m_indexer), //
+                                        new IndexerMoveUpOne(m_indexer),
+                                        new KickerAdvanceCommand(m_kicker, m_shooter) //     
+                                ) 
+                                //new WaitCommand(2.0) //
                         ) //
                 );
 
@@ -251,33 +259,16 @@ public class RobotContainer {
                     // Apply the voltage constraint
                     .addConstraint(autoVoltageConstraint);
               
-              // An example trajectory to follow.  All units in meters.
-              Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
-                // Start at the origin facing the +X direction
-                List.of(
-                 new Pose2d(0, 0, new Rotation2d(0)),
-                 new Pose2d(0.76, 0.00, new Rotation2d(Math.PI/4)),
-                 new Pose2d(1.52, 0.76, new Rotation2d(Math.PI/2)),
-                 new Pose2d(1.52, 1.52, new Rotation2d(Math.PI/4)),
-                 new Pose2d(6.86, 1.52, new Rotation2d(.75 * Math.PI))
-                /* new Pose2d(6.86, 0.76, new Rotation2d(1.5 * Math.PI)),
-                 new Pose2d(6.86, 0.00, new Rotation2d(0)),
-                 new Pose2d(7.62, 0.00, new Rotation2d(0)),
-                 new Pose2d(8.38, 0.76, new Rotation2d(Math.PI/2)),
-                 new Pose2d(7.62, 1.52, new Rotation2d(Math.PI)),
-                 new Pose2d(6.86, 1.52, new Rotation2d(1.5 * Math.PI)),
-                 new Pose2d(6.86, 0.76, new Rotation2d(1.5 * Math.PI)),
-                 new Pose2d(6.86, 0.00, new Rotation2d(Math.PI/2)),
-                 new Pose2d(1.52, 0.00, new Rotation2d(Math.PI/2)),
-                 new Pose2d(1.52, 0.76, new Rotation2d(Math.PI)),
-                 new Pose2d(1.52, 1.52, new Rotation2d(Math.PI)), 
-               
-                new Pose2d(1.52, 1.52, new Rotation2d(0))
-               */ ),
-                // Pass config
-                config
-              );
-              
+        String trajectoryJSON = "paths/Slalom.json";
+        Trajectory exampleTrajectory = new Trajectory();
+        try {
+                Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
+                exampleTrajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+        } catch (IOException ex) {
+                DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
+        }
+        m_drive.resetOdometry(exampleTrajectory.getInitialPose() );
+        DriverStation.reportError("Robot X set to " + m_drive.m_odometry.getPoseMeters().getX() +  "  Robot Y set to " +  m_drive.m_odometry.getPoseMeters().getY(), false);
               RamseteCommand ramseteCommand = new RamseteCommand(
                 exampleTrajectory,
                 m_drive::getPose,
