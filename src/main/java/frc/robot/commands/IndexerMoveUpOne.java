@@ -21,7 +21,7 @@ public class IndexerMoveUpOne extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_indexer.moveClosedLoopDistance(Constants.distanceToMovePowerCellWhenLoading);
+    m_indexer.moveClosedLoopDistance(Constants.distanceToMovePowerCellShooting);
   }
 
   // Called every time the scheduler runs while the command is scheduled.

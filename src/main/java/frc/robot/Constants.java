@@ -78,8 +78,9 @@ public final class Constants {
 	/* Shooter ------------------------------ */
 	public static final int shooterMotorControllerCANId = 1;
 	public static final double shooterIntendedSpeedTolerance = 0.02;
-	public static final double shooterYeetSpeedInitiation = 4100.0; // RPM
-	public static final double shooterYeetSpeedWall = 3250.0; // RPM; OG 5000.0; max motor speed 5676
+	public static final double shooterYeetSpeedInitiation = 3400.0; // RPM
+	public static final double shooterYeetSpeedGreenYellow = 2850.0; // RPM; OG 5000.0; max motor speed 5676
+	public static final double shooterYeetSpeedBlue = 3000; //RPM
 	/*
 	GREEN ZONE = 3500
 	
@@ -205,7 +206,8 @@ public final class Constants {
 	 */
 	public static final double indexerStack1PwrCellTimeout = 5.0; // seconds
 
-	public static final double distanceToMovePowerCellWhenLoading = 19; // cm
+	public static final double distanceToMovePowerCellWhenLoading = 23; // cm
+	public static final double distanceToMovePowerCellShooting = 19;  //cm
 	public static final double indexerPulleyDiameter = 6.68528; // diameter of indexer pulleys in centimeters
 	/*
 	 * Distance of the Power Cell that's in a normal position at the base of the

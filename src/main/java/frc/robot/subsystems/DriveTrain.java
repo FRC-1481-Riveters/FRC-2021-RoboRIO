@@ -72,10 +72,10 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
     m_rightFollower.restoreFactoryDefaults();
     m_rightLead.restoreFactoryDefaults();
 
-    m_leftLead.setIdleMode(IdleMode.kCoast);
+    m_leftLead.setIdleMode(IdleMode.kBrake);
     m_leftLead.setOpenLoopRampRate(Constants.driveMotorRampRate); // numbers = seconds until full speed
 
-    m_rightLead.setIdleMode(IdleMode.kCoast);
+    m_rightLead.setIdleMode(IdleMode.kBrake);
     m_rightLead.setOpenLoopRampRate(Constants.driveMotorRampRate); // numbers = seconds until full speed
 
     m_leftFollower.setIdleMode(IdleMode.kCoast);

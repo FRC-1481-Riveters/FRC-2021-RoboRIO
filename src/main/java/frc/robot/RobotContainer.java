@@ -8,7 +8,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.Ultrasonic;
+//import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -52,7 +52,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.subsystems.colorsensor;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.UltrasonicSensor;
+//import frc.robot.subsystems.UltrasonicSensor;
 import frc.robot.subsystems.wheelOfFortuneColorSpinny;
 import irsensor.IRSensor;
 import frc.robot.Constants;
@@ -98,7 +98,7 @@ public class RobotContainer {
         private final Intake m_intake = new Intake(m_intakePowerCellPositionSensor);
         //private final PowerCellArm m_powerCellArm = new PowerCellArm();
         private final AutoAssistSubsystem m_autoAssist = new AutoAssistSubsystem();
-        private final UltrasonicSensor m_ultrasonicSensor = new UltrasonicSensor();
+//        private final UltrasonicSensor m_ultrasonicSensor = new UltrasonicSensor();
         //public final CyanSus m_cyanSus = new CyanSus();
 
         RumbleTimerJoystick m_driverController = new RumbleTimerJoystick(Constants.driverController);
@@ -159,7 +159,7 @@ public class RobotContainer {
                         new SequentialCommandGroup( //
                                 new ShooterYeetCommand(m_shooter, Constants.shooterYeetSpeedInitiation), //
                                 new ParallelCommandGroup( //
-                                        new IndexerCarryUpCommand(m_indexer), //
+                                        new IndexerMoveUpOne(m_indexer), //
                                         new KickerAdvanceCommand(m_kicker, m_shooter) //
                                 ) //
                         ) //
@@ -169,7 +169,7 @@ public class RobotContainer {
 
                 new JoystickButton(m_driverController, Button.kY.value).whileHeld( //
                         new SequentialCommandGroup( //
-                                new ShooterYeetCommand(m_shooter, Constants.shooterYeetSpeedWall), //
+                                new ShooterYeetCommand(m_shooter, Constants.shooterYeetSpeedGreenYellow), //
                                 new ParallelCommandGroup( //
                                         //new IndexerCarryUpCommand(m_indexer), //
                                         new IndexerMoveUpOne(m_indexer),
@@ -180,6 +180,20 @@ public class RobotContainer {
                 );
 
                 new JoystickButton(m_driverController, Button.kY.value).whenReleased(new ShooterYeetCommand(m_shooter, 0.0));
+
+                new JoystickButton(m_driverController, Button.kA.value).whileHeld( //
+                new SequentialCommandGroup( //
+                        new ShooterYeetCommand(m_shooter, Constants.shooterYeetSpeedBlue), //
+                        new ParallelCommandGroup( //
+                                //new IndexerCarryUpCommand(m_indexer), //
+                                new IndexerMoveUpOne(m_indexer),
+                                new KickerAdvanceCommand(m_kicker, m_shooter) //     
+                        ) 
+                        //new WaitCommand(2.0) //
+                ) //
+        );
+
+        new JoystickButton(m_driverController, Button.kA.value).whenReleased(new ShooterYeetCommand(m_shooter, 0.0));
 
                 /* Load Power Cells */
                 new JoystickButton(m_operatorController, Button.kY.value).whileHeld(new IndexerCarryUpCommand(m_indexer));
