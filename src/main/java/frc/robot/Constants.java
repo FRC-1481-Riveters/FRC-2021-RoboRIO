@@ -78,6 +78,10 @@ public final class Constants {
 	/* Shooter ------------------------------ */
 	public static final int shooterMotorControllerCANId = 1;
 	public static final double shooterIntendedSpeedTolerance = 0.02;
+<<<<<<< HEAD
+	public static final double shooterYeetSpeedInitiation = 4200.0; // RPM OG 4100
+	public static final double shooterYeetSpeedWall = 4300.0; // RPM; OG 5000.0; max motor speed 5676, 3650
+=======
 	public static final double shooterYeetSpeedInitiation = 3400.0; // RPM
 	public static final double shooterYeetSpeedGreenYellow = 2850.0; // RPM; OG 5000.0; max motor speed 5676
 	public static final double shooterYeetSpeedBlue = 3000; //RPM
@@ -85,6 +89,7 @@ public final class Constants {
 	GREEN ZONE = 3500
 	
 	*/
+>>>>>>> 2efefd05457b06c285bf25f46123e1f3f85a1b43
 
 	/* Cameras ---------------------------------------- */
 	public static final int visionCameraPort = 0;

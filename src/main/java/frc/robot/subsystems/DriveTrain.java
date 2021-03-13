@@ -7,7 +7,6 @@
 
 package frc.robot.subsystems;
 
-import com.kauailabs.navx.*;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
