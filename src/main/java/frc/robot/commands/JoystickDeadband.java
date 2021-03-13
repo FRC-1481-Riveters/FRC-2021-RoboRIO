@@ -19,8 +19,10 @@ public class JoystickDeadband {
     public JoystickDeadband() {
     }
     public double deadband(double joystickAxisValue) {
-        if ((joystickAxisValue > m_deadband) || (joystickAxisValue < -m_deadband)) {
+        if (joystickAxisValue > m_deadband) {
             return joystickAxisValue - m_deadband;
+        } else if ((joystickAxisValue < -m_deadband)) {
+            return joystickAxisValue + m_deadband;
         }
         return 0;
     }

@@ -20,7 +20,8 @@ import frc.robot.commands.JoystickDeadband;
 public class ArcadeDrive extends CommandBase {
   private final DriveTrain m_drivetrain;
   RumbleTimerJoystick m_RumbleTimerJoystick;
-  final JoystickDeadband m_deadbander = new JoystickDeadband();
+  final JoystickDeadband m_deadbandDrive = new JoystickDeadband(0.25);
+  final JoystickDeadband m_deadbandTurn = new JoystickDeadband(0.1);
   /**
    * Creates a new ExampleCommand.
    *
@@ -38,8 +39,9 @@ public class ArcadeDrive extends CommandBase {
   public void execute() {
     final double m_leftJoystickValue;
     final double m_rightJoystickValue;
-    final double m_leftJoystickSquare;
+    double m_leftJoystickSquare;
     final double m_rightJoystickQuarter;
+    final double m_rightJoystickSquare; 
     
   
   //  final double m_rightJoystickSquare;
@@ -50,13 +52,14 @@ public class ArcadeDrive extends CommandBase {
     else {
     m_leftJoystickSquare = -(m_leftJoystickValue * m_leftJoystickValue); 
   }
-  /*  if (m_rightJoystickValue >= 0){
+    if (m_rightJoystickValue >= 0){
     m_rightJoystickSquare = m_rightJoystickValue * m_rightJoystickValue;}
     else {
     m_rightJoystickSquare = -(m_rightJoystickValue * m_rightJoystickValue);
-  } */
-  m_rightJoystickQuarter = m_rightJoystickValue  * Constants.rotationInQuarter;
-    m_drivetrain.drive(m_deadbander.deadband(m_leftJoystickSquare), m_deadbander.deadband(m_rightJoystickQuarter));
+  }
+  m_rightJoystickQuarter = m_rightJoystickSquare * Constants.rotationInQuarter;
+  m_leftJoystickSquare = m_leftJoystickSquare * Constants.scaleDriveJoystick;
+    m_drivetrain.drive(m_deadbandDrive.deadband(m_leftJoystickSquare), m_deadbandTurn.deadband(m_rightJoystickQuarter));
 
   }
   

@@ -72,17 +72,10 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
     m_rightLead.restoreFactoryDefaults();
 
     m_leftLead.setIdleMode(IdleMode.kBrake);
-    m_leftLead.setOpenLoopRampRate(Constants.driveMotorRampRate); // numbers = seconds until full speed
-
     m_rightLead.setIdleMode(IdleMode.kBrake);
-    m_rightLead.setOpenLoopRampRate(Constants.driveMotorRampRate); // numbers = seconds until full speed
-
     m_leftFollower.setIdleMode(IdleMode.kCoast);
-    m_leftFollower.setOpenLoopRampRate(Constants.driveMotorRampRate); // numbers = seconds until full speed
-
     m_rightFollower.setIdleMode(IdleMode.kCoast);
-    m_rightFollower.setOpenLoopRampRate(Constants.driveMotorRampRate); // numbers = seconds until full speed
-
+   
     m_leftLead.setClosedLoopRampRate(Constants.closedLoopRampRate);
     m_rightLead.setClosedLoopRampRate(Constants.closedLoopRampRate);
 
@@ -99,6 +92,20 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
     SmartDashboard.putNumber("leftVolts", 0.0);
     SmartDashboard.putNumber("rightVolts", 0.0);
   }
+
+public void setOpenLoop(boolean auton)
+{
+  double rampRate;
+  if (auton)
+    rampRate = Constants.driveMotorRampRateAuto;
+  else
+    rampRate = Constants.driveMotorRampRateTele;
+
+  m_leftLead.setOpenLoopRampRate( rampRate );
+  m_leftFollower.setOpenLoopRampRate( rampRate );
+  m_rightLead.setOpenLoopRampRate( rampRate );
+  m_rightFollower.setOpenLoopRampRate( rampRate ); 
+}
 
   /**
    * Arcade drive method
@@ -119,6 +126,14 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
   public void driveAtSpeed(double leftSpeedInMetersPerSecond, double rightSpeedInMetersPerSecond) {
 
   }
+public void coastDrive(){
+  m_leftLead.setIdleMode(IdleMode.kCoast);
+  m_rightLead.setIdleMode(IdleMode.kCoast);
+}
+public void brakeDrive(){
+  m_leftLead.setIdleMode(IdleMode.kBrake);
+  m_rightLead.setIdleMode(IdleMode.kBrake);
+}
 
   protected double meterPerSecondToRPM(double metersPerSecond) {
     double RPM;
@@ -144,12 +159,12 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
       -m_leftDriveEncoder.getPosition(),
       m_rightDriveEncoder.getPosition());
 
-    SmartDashboard.putNumber("Left Encoder", -m_leftDriveEncoder.getPosition());
-    SmartDashboard.putNumber("Right Encoder", m_rightDriveEncoder.getPosition());
-    SmartDashboard.putNumber("gyro degrees",  getHeading());
-    SmartDashboard.putNumber("odo degrees",   m_odometry.getPoseMeters().getRotation().getDegrees());
-    SmartDashboard.putNumber("left velocity", -m_leftDriveEncoder.getVelocity());
-    SmartDashboard.putNumber("right velocity", m_rightDriveEncoder.getVelocity());
+    //SmartDashboard.putNumber("Left Encoder", -m_leftDriveEncoder.getPosition());
+    //SmartDashboard.putNumber("Right Encoder", m_rightDriveEncoder.getPosition());
+  //  SmartDashboard.putNumber("gyro degrees",  getHeading());
+  //  SmartDashboard.putNumber("odo degrees",   m_odometry.getPoseMeters().getRotation().getDegrees());
+   // SmartDashboard.putNumber("left velocity", -m_leftDriveEncoder.getVelocity());
+   // SmartDashboard.putNumber("right velocity", m_rightDriveEncoder.getVelocity());
 
     //var translation = m_odometry.getPoseMeters().getTranslation();
     SmartDashboard.putNumber("X", m_odometry.getPoseMeters().getX());

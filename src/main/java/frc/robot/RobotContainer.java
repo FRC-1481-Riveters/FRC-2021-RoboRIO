@@ -87,7 +87,7 @@ public class RobotContainer {
 
         private final Shooter m_shooter = new Shooter();
         private final Kicker m_kicker = new Kicker();
-        private final DriveTrain m_drive = new DriveTrain();
+        public final DriveTrain m_drive = new DriveTrain();
 
         private final CameraSubsystem m_cameraSubsystem = new CameraSubsystem(m_drive);
         //private final Elevator m_elevator = new Elevator();
@@ -246,6 +246,18 @@ public class RobotContainer {
                 return m_chooser.getSelected();
         }
 
+        public void autonomousInit() {
+                m_drive.setOpenLoop(true);
+                m_drive.brakeDrive();
+        }
+        public void teleopInit() {
+                m_drive.setOpenLoop(false);
+                m_drive.brakeDrive();
+        }
+        public void disabledInit(){
+                m_drive.coastDrive();
+        }
+            
         public void resetPose() {
                 m_drive.resetOdometry( new Pose2d(0, 0, new Rotation2d(0) ) );
                 m_drive.resetEncoders();
