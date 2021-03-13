@@ -78,8 +78,18 @@ public final class Constants {
 	/* Shooter ------------------------------ */
 	public static final int shooterMotorControllerCANId = 1;
 	public static final double shooterIntendedSpeedTolerance = 0.02;
+<<<<<<< HEAD
 	public static final double shooterYeetSpeedInitiation = 4200.0; // RPM OG 4100
 	public static final double shooterYeetSpeedWall = 4300.0; // RPM; OG 5000.0; max motor speed 5676, 3650
+=======
+	public static final double shooterYeetSpeedInitiation = 3400.0; // RPM
+	public static final double shooterYeetSpeedGreenYellow = 2850.0; // RPM; OG 5000.0; max motor speed 5676
+	public static final double shooterYeetSpeedBlue = 3000; //RPM
+	/*
+	GREEN ZONE = 3500
+	
+	*/
+>>>>>>> 2efefd05457b06c285bf25f46123e1f3f85a1b43
 
 	/* Cameras ---------------------------------------- */
 	public static final int visionCameraPort = 0;
@@ -111,26 +121,30 @@ public final class Constants {
 	public static final int relayElevatorSolenoid = 0;
 
 	/* Drive --------------------------------------- */
-	public static final double driveMotorRampRate = 0.5; // number = seconds till full speed
+	public static final double driveMotorRampRate = 0.001; // number = seconds till full speed
 	public static final double rotationInQuarter = 0.7;
 	public static final int frontLeftMotor = 13;
 	public static final int rearLeftMotor = 12;
 	public static final int frontRightMotor = 2;
 	public static final int rearRightMotor = 3;
-	public static final double closedLoopRampRate = 0.1; // Volts / msS
-	public static final double ksVolts = 0.18;
-    public static final double kvVoltSecondsPerMeter = 0.00439;
-	public static final double kaVoltSecondsSquaredPerMeter = 0.000699;
-	public static final double kPDriveVel = 0.0328;
+	public static final double closedLoopRampRate = 0.001; // Volts / msS
+
+	public static final double ksVolts = 0.217;
+    public static final double kvVoltSecondsPerMeter = 6.43;
+	public static final double kaVoltSecondsSquaredPerMeter = 1.07;
+	public static final double kPDriveVel = 0.08; //5.41;
 	public static final double kTrackwidthMeters = 0.5715;
 	public static final double kMaxSpeedMetersPerSecond = 3.6576;
-	public static final double kMaxAccelerationMetersPerSecondSquared = 7.0;
+	public static final double kMaxAccelerationMetersPerSecondSquared = 1;
+
 	public static final double kRamseteB = 2;
 	public static final double kRamseteZeta = 0.7;
     public static final DifferentialDriveKinematics kDriveKinematics =
 		new DifferentialDriveKinematics(kTrackwidthMeters);
-	public static final double drivetrainGearing = 10.111111;
-	public static final double drivetrainWheelRevPerMeter = 0.47798;
+	// Gear ratio is derived from:
+	// (main gear teeth * pulses per NEO revolution) / (outer gear * pinion teeth)
+	public static final double drivetrainGearing = ((42.0 * 56.0) / (18.0 * 11.0));
+	public static final double drivetrainWheelRevPerMeter = 0.474788;
 	public static final double driveTireDiameterInMeters = Units.inchesToMeters(8.0);
 	public static final double minJoystickActiveValue = 0.05; 
 
@@ -197,7 +211,8 @@ public final class Constants {
 	 */
 	public static final double indexerStack1PwrCellTimeout = 5.0; // seconds
 
-	public static final double distanceToMovePowerCellWhenLoading = 19; // cm
+	public static final double distanceToMovePowerCellWhenLoading = 23; // cm
+	public static final double distanceToMovePowerCellShooting = 19;  //cm
 	public static final double indexerPulleyDiameter = 6.68528; // diameter of indexer pulleys in centimeters
 	/*
 	 * Distance of the Power Cell that's in a normal position at the base of the

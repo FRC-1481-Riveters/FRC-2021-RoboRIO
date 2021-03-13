@@ -8,7 +8,7 @@
 package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
-import edu.wpi.first.wpilibj.SerialPort;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
@@ -30,6 +30,8 @@ import com.revrobotics.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.networktables.*;
+import edu.wpi.first.wpilibj.geometry.*;
 
 public class DriveTrain extends SubsystemBase implements DoubleSupplier {
   /**
@@ -48,14 +50,15 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
   protected CANEncoder m_leftDriveEncoder;
   protected CANEncoder m_rightDriveEncoder;
 
-  protected CANPIDController m_leftPIDController;
-  protected CANPIDController m_rightPIDController;
+  //NetworkTableEntry m_xEntry = NetworkTableInstance.getDefault().getTable("troubleshooting").getEntry("X");
+  //NetworkTableEntry m_yEntry = NetworkTableInstance.getDefault().getTable("troubleshooting").getEntry("Y");
+
 
   // The gyro sensor
-  private final Gyro m_gyro = new AHRS(SerialPort.Port.kMXP);
+  private final Gyro m_gyro = new AHRS(SPI.Port.kMXP);
 
   // Odometry class for tracking robot pose
-  private final DifferentialDriveOdometry m_odometry;
+  public final DifferentialDriveOdometry m_odometry;
 
   /**
    * Create a new drive train subsystem.
@@ -68,10 +71,10 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
     m_rightFollower.restoreFactoryDefaults();
     m_rightLead.restoreFactoryDefaults();
 
-    m_leftLead.setIdleMode(IdleMode.kCoast);
+    m_leftLead.setIdleMode(IdleMode.kBrake);
     m_leftLead.setOpenLoopRampRate(Constants.driveMotorRampRate); // numbers = seconds until full speed
 
-    m_rightLead.setIdleMode(IdleMode.kCoast);
+    m_rightLead.setIdleMode(IdleMode.kBrake);
     m_rightLead.setOpenLoopRampRate(Constants.driveMotorRampRate); // numbers = seconds until full speed
 
     m_leftFollower.setIdleMode(IdleMode.kCoast);
@@ -89,20 +92,12 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
     m_leftDriveEncoder = m_leftLead.getEncoder();
     m_rightDriveEncoder = m_rightLead.getEncoder();
     m_leftDriveEncoder.setPositionConversionFactor(1.0 / (Constants.drivetrainGearing / Constants.drivetrainWheelRevPerMeter));
+    m_leftDriveEncoder.setVelocityConversionFactor((Constants.drivetrainWheelRevPerMeter / Constants.drivetrainGearing) / 60.0);
     m_rightDriveEncoder.setPositionConversionFactor(1.0 / (Constants.drivetrainGearing / Constants.drivetrainWheelRevPerMeter));
+    m_rightDriveEncoder.setVelocityConversionFactor((Constants.drivetrainWheelRevPerMeter / Constants.drivetrainGearing) / 60.0);
     
-    m_leftPIDController = m_leftLead.getPIDController();
-    m_rightPIDController = m_rightLead.getPIDController();
-
-    m_leftPIDController.setP(Constants.kDriveGains.kP);
-    m_leftPIDController.setI(Constants.kDriveGains.kI);
-    m_leftPIDController.setD(Constants.kDriveGains.kD);
-    m_leftPIDController.setFF(Constants.kDriveGains.kF);
-
-    m_rightPIDController.setP(Constants.kDriveGains.kP);
-    m_rightPIDController.setI(Constants.kDriveGains.kI);
-    m_rightPIDController.setD(Constants.kDriveGains.kD);
-    m_rightPIDController.setFF(Constants.kDriveGains.kF);
+    SmartDashboard.putNumber("leftVolts", 0.0);
+    SmartDashboard.putNumber("rightVolts", 0.0);
   }
 
   /**
@@ -123,21 +118,6 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
    */
   public void driveAtSpeed(double leftSpeedInMetersPerSecond, double rightSpeedInMetersPerSecond) {
 
-    /*
-     * The Spark Maxs by default deal with speeds in RPM. So, convert the meters per
-     * second that this routine accepts for each of the motor speeds into RPM before
-     * telling each of the motors to spin at that speed.
-     */
-
-    double leftMotorRPM = meterPerSecondToRPM(leftSpeedInMetersPerSecond);
-    m_leftPIDController.setReference(-leftMotorRPM, ControlType.kVelocity);
-
-    /*
-     * By convention, the Right motor is inverted. So, invert this motor while under
-     * direction control of this PID
-     */
-    double rightMotorRPM = meterPerSecondToRPM(-1.0 * rightSpeedInMetersPerSecond);
-    m_rightPIDController.setReference(-rightMotorRPM, ControlType.kVelocity);
   }
 
   protected double meterPerSecondToRPM(double metersPerSecond) {
@@ -160,11 +140,20 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
   public void periodic() {
     // This method will be called once per scheduler run
     // Update the odometry in the periodic block
-    m_odometry.update(m_gyro.getRotation2d(), m_leftDriveEncoder.getPosition(),
-                      -m_rightDriveEncoder.getPosition());
-    SmartDashboard.putNumber("Gyro", m_gyro.getAngle());
-    SmartDashboard.putNumber("Left Drive", m_leftDriveEncoder.getPosition());
-    SmartDashboard.putNumber("Right Drive", -m_rightDriveEncoder.getPosition());
+    m_odometry.update( m_gyro.getRotation2d(), 
+      -m_leftDriveEncoder.getPosition(),
+      m_rightDriveEncoder.getPosition());
+
+    SmartDashboard.putNumber("Left Encoder", -m_leftDriveEncoder.getPosition());
+    SmartDashboard.putNumber("Right Encoder", m_rightDriveEncoder.getPosition());
+    SmartDashboard.putNumber("gyro degrees",  getHeading());
+    SmartDashboard.putNumber("odo degrees",   m_odometry.getPoseMeters().getRotation().getDegrees());
+    SmartDashboard.putNumber("left velocity", -m_leftDriveEncoder.getVelocity());
+    SmartDashboard.putNumber("right velocity", m_rightDriveEncoder.getVelocity());
+
+    //var translation = m_odometry.getPoseMeters().getTranslation();
+    SmartDashboard.putNumber("X", m_odometry.getPoseMeters().getX());
+    SmartDashboard.putNumber("Y", m_odometry.getPoseMeters().getY());
   }
 
   /**
@@ -182,7 +171,7 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
    * @return The current wheel speeds.
    */
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
-    return new DifferentialDriveWheelSpeeds(m_leftDriveEncoder.getVelocity(), -m_rightDriveEncoder.getVelocity());
+    return new DifferentialDriveWheelSpeeds(-m_leftDriveEncoder.getVelocity(), m_rightDriveEncoder.getVelocity());
   }
 
   /**
@@ -192,6 +181,7 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
    */
   public void resetOdometry(Pose2d pose) {
     resetEncoders();
+    m_gyro.reset();
     m_odometry.resetPosition(pose, m_gyro.getRotation2d());
   }
 
@@ -202,41 +192,20 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
    * @param rightVolts the commanded right output
    */
   public void tankDriveVolts(double leftVolts, double rightVolts) {
-    m_leftLead.setVoltage(leftVolts);
-    m_rightLead.setVoltage(-rightVolts);
+    SmartDashboard.putNumber("leftVolts", -leftVolts);
+    SmartDashboard.putNumber("rightVolts", rightVolts);
+//    if( leftVolts > 3 ) leftVolts = 3;
+///    if( leftVolts < -3 ) leftVolts = -3;
+    m_leftLead.setVoltage(-leftVolts);
+//    if( rightVolts > 3 ) rightVolts = 3;
+//    if( rightVolts < -3 ) rightVolts = -3;
+    m_rightLead.setVoltage(rightVolts);
     m_drive.feed();
   }
 
   public void resetEncoders() {
     m_leftDriveEncoder.setPosition(0);
     m_rightDriveEncoder.setPosition(0);
-  }
-
-  /**
-   * Gets the average distance of the two encoders.
-   *
-   * @return the average of the two encoder readings
-   */
-  public double getAverageEncoderDistance() {
-    return (m_leftDriveEncoder.getPosition() + m_rightDriveEncoder.getPosition()) / 2.0;
-  }
-
-  /**
-   * Gets the left drive encoder.
-   *
-   * @return the left drive encoder
-   */
-  public CANEncoder getLeftEncoder() {
-    return m_leftDriveEncoder;
-  }
-
-  /**
-   * Gets the right drive encoder.
-   *
-   * @return the right drive encoder
-   */
-  public CANEncoder getRightEncoder() {
-    return m_rightDriveEncoder;
   }
 
   /**
@@ -249,28 +218,12 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
   }
 
   /**
-   * Zeroes the heading of the robot.
-   */
-  public void zeroHeading() {
-    m_gyro.reset();
-  }
-
-  /**
    * Returns the heading of the robot.
    *
    * @return the robot's heading in degrees, from -180 to 180
    */
   public double getHeading() {
     return m_gyro.getRotation2d().getDegrees();
-  }
-
-  /**
-   * Returns the turn rate of the robot.
-   *
-   * @return The turn rate of the robot, in degrees per second
-   */
-  public double getTurnRate() {
-    return -m_gyro.getRate();
   }
 
   /*
@@ -286,7 +239,7 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
    */
   @Override
   public double getAsDouble() {
-    double averageNEORevolutionsTravelled = (m_leftDriveEncoder.getPosition() - m_rightDriveEncoder.getPosition())
+    double averageNEORevolutionsTravelled = (-m_leftDriveEncoder.getPosition() + m_rightDriveEncoder.getPosition())
         / 2.0;
 
     return (averageNEORevolutionsTravelled * Constants.driveTrainInchesPerEncoderCounts);
