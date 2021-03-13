@@ -11,7 +11,7 @@ package frc.robot.commands;
  * Add your docs here.
  */
 public class JoystickDeadband {
-    private double m_deadband = 0.05;
+    private double m_deadband = 0.25;
     
     public JoystickDeadband(double deadband) {
         m_deadband = deadband;
@@ -20,7 +20,7 @@ public class JoystickDeadband {
     }
     public double deadband(double joystickAxisValue) {
         if ((joystickAxisValue > m_deadband) || (joystickAxisValue < -m_deadband)) {
-            return joystickAxisValue;
+            return joystickAxisValue - m_deadband;
         }
         return 0;
     }
