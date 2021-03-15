@@ -27,6 +27,7 @@ import com.revrobotics.CANEncoder;
 import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
+import com.revrobotics.CANSparkMax.ExternalFollower;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -78,6 +79,10 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
    
     m_leftLead.setClosedLoopRampRate(Constants.closedLoopRampRate);
     m_rightLead.setClosedLoopRampRate(Constants.closedLoopRampRate);
+
+    // Possible workaround for stutter per:
+    //   https://www.chiefdelphi.com/t/spark-max-follower-with-lower-can-id-than-leader-causes-4-stutters-sec-until-power-cycled/378716/12
+    m_leftLead.follow(ExternalFollower.kFollowerDisabled, 0);
 
     m_leftFollower.follow(m_leftLead);
     m_rightFollower.follow(m_rightLead);
