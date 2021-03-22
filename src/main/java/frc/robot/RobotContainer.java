@@ -17,6 +17,7 @@ import frc.robot.commands.ArcadeDrive;
 import frc.robot.commands.AutonRobotDriveDistance;
 import frc.robot.commands.AutonShoot3StackedPowerCellsAndDriveOffLine;
 import frc.robot.commands.AutonSuperTrenchSequence;
+import frc.robot.commands.AutonRamsetePath;
 import frc.robot.commands.CycleCameraFeedCommand;
 import frc.robot.commands.ElevatorSolenoidPullIn;
 import frc.robot.commands.ElevatorSolenoidPullOut;
@@ -50,6 +51,10 @@ import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
+import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import frc.robot.subsystems.colorsensor;
 import frc.robot.subsystems.Shooter;
 //import frc.robot.subsystems.UltrasonicSensor;
@@ -61,17 +66,10 @@ import frc.robot.subsystems.Goosehook;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.CyanSus;
-import edu.wpi.first.wpilibj.trajectory.*;
-import edu.wpi.first.wpilibj.trajectory.constraint.*;
-import edu.wpi.first.wpilibj.controller.*;
-import edu.wpi.first.wpilibj.geometry.*;
-import edu.wpi.first.wpilibj2.command.RamseteCommand;
-import java.util.List;
-import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
-import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.DriverStation;
 import java.io.IOException;
 import java.nio.file.*;
-import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -104,6 +102,18 @@ public class RobotContainer {
         RumbleTimerJoystick m_driverController = new RumbleTimerJoystick(Constants.driverController);
         RumbleTimerJoystick m_operatorController = new RumbleTimerJoystick(Constants.operatorController);
 
+        private final Command AutonSlalom = 
+                new AutonRamsetePath( m_drive, LoadTrajectory("paths/Slalom.json"), true );
+        private final Command AutonBounce = 
+                new AutonRamsetePath( m_drive, LoadTrajectory("paths/Bounce.json"), true );
+        private final Command AutonBarrel = 
+                new AutonRamsetePath( m_drive, LoadTrajectory("paths/Barrel.json"), true );
+        private final Command AutonSearchA = 
+                new AutonRamsetePath( m_drive, LoadTrajectory("paths/SearchA.json"), true );
+        private final Command AutonSearchB = 
+                new AutonRamsetePath( m_drive, LoadTrajectory("paths/SearchB.json"), true );
+        private final Command AutonNothing =
+                new SequentialCommandGroup(new PrintCommand("Do nothing selected for auton."), new WaitCommand(5.0))
         SendableChooser<Command> m_chooser = new SendableChooser<>();
 
         /**
@@ -126,7 +136,6 @@ public class RobotContainer {
                  *
                  * m_chooser.addOption("Title on dashboard",new CmdClassName(subs,args...));
                  * 
-                 * 
                  * The command that that is selected on the dashboard will be reported by
                  * m_chooser.getSelected(), and returned by
                  * RobotContainer.getAutonomousCommand() and executed (scheduled) during
@@ -135,11 +144,14 @@ public class RobotContainer {
 
                 //m_chooser.setDefaultOption("Shoot 3, back robot off line", new AutonShoot3StackedPowerCellsAndDriveOffLine(m_shooter, m_indexer, m_kicker, m_drive));
                 //m_chooser.setDefaultOption("Shoot 3, back robot off line", new AutonSuperTrenchSequence(m_shooter, m_indexer, m_kicker, m_drive, m_intake));
-                m_chooser.setDefaultOption("2 meter circle", AutonCircle());
-                m_chooser.addOption("-= Do nothing =-", new SequentialCommandGroup(new PrintCommand("Do nothing selected for auton."), new WaitCommand(5.0)));
+                m_chooser.setDefaultOption("-= Do nothing =-", AutonNothing );
+                m_chooser.addOption("Slalom path",       AutonSlalom );
+                m_chooser.addOption("Bounce path",       AutonBounce );
+                m_chooser.addOption("Barrel path",       AutonBarrel );
+                m_chooser.addOption("Galactic Search A", AutonSearchA );
+                m_chooser.addOption("Galactic Search B", AutonSearchB );
 
                 SmartDashboard.putData("Auto mode", m_chooser);
-
         }
 
         /**
@@ -263,57 +275,23 @@ public class RobotContainer {
                 m_drive.resetEncoders();
                 //m_drive.zeroHeading();        
         }
- 
-        public Command AutonCircle() {
 
-                // Create a voltage constraint to ensure we don't accelerate too fast
-                var autoVoltageConstraint =
-                new DifferentialDriveVoltageConstraint(
-                    new SimpleMotorFeedforward( Constants.ksVolts,
-                                               Constants.kvVoltSecondsPerMeter,
-                                               Constants.kaVoltSecondsSquaredPerMeter),
-                    Constants.kDriveKinematics,
-                    6.0 );
-              
-              // Create config for trajectory
-              TrajectoryConfig config =
-                new TrajectoryConfig(Constants.kMaxSpeedMetersPerSecond,
-                                     Constants.kMaxAccelerationMetersPerSecondSquared)
-                    // Add kinematics to ensure max speed is actually obeyed
-                    .setKinematics(Constants.kDriveKinematics)
-                    .addConstraint(new CentripetalAccelerationConstraint(0.1))
-                    // Apply the voltage constraint
-                    .addConstraint(autoVoltageConstraint);
-              
-        String trajectoryJSON = "paths/Slalom.json";
-        Trajectory exampleTrajectory = new Trajectory();
-        try {
-                Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
-                exampleTrajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
-        } catch (IOException ex) {
-                DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
+        private Trajectory LoadTrajectory( String jsonname )
+        {
+                Trajectory trajectory;
+                try
+                {
+                        Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(jsonname);
+                        trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+                }
+                catch (IOException ex) 
+                {
+                        DriverStation.reportError("Unable to open trajectory: " + jsonname, ex.getStackTrace());
+                        trajectory = null;
+                }
+                return trajectory;
         }
-        m_drive.resetOdometry(exampleTrajectory.getInitialPose() );
-        DriverStation.reportError("Robot X set to " + m_drive.m_odometry.getPoseMeters().getX() +  "  Robot Y set to " +  m_drive.m_odometry.getPoseMeters().getY(), false);
-              RamseteCommand ramseteCommand = new RamseteCommand(
-                exampleTrajectory,
-                m_drive::getPose,
-                new RamseteController(Constants.kRamseteB, Constants.kRamseteZeta),
-                new SimpleMotorFeedforward(Constants.ksVolts,
-                                           Constants.kvVoltSecondsPerMeter,
-                                           Constants.kaVoltSecondsSquaredPerMeter),
-                Constants.kDriveKinematics,
-                m_drive::getWheelSpeeds,
-                new PIDController(Constants.kPDriveVel, 0, 0),
-                new PIDController(Constants.kPDriveVel, 0, 0),
-                // RamseteCommand passes volts to the callback
-                m_drive::tankDriveVolts,
-                m_drive
-              );
-              
-          // Run path following command, then stop at the end.
-          return ramseteCommand.andThen(() ->  m_drive.tankDriveVolts(0, 0));
-      }
+        
       }
       
 
