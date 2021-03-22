@@ -10,6 +10,7 @@ package frc.robot.subsystems;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
@@ -27,6 +28,7 @@ import com.revrobotics.CANEncoder;
 import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
+import com.revrobotics.CANSparkMax.ExternalFollower;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -60,6 +62,12 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
   // Odometry class for tracking robot pose
   public final DifferentialDriveOdometry m_odometry;
 
+  private double previousLeftPosition;
+  private double previousRightPosition;
+  private double leftVelocity;
+  private double rightVelocity;
+  private long previousFPGATime;
+
   /**
    * Create a new drive train subsystem.
    */
@@ -78,6 +86,10 @@ public class DriveTrain extends SubsystemBase implements DoubleSupplier {
    
     m_leftLead.setClosedLoopRampRate(Constants.closedLoopRampRate);
     m_rightLead.setClosedLoopRampRate(Constants.closedLoopRampRate);
+
+    // Possible workaround for stutter per:
+    //   https://www.chiefdelphi.com/t/spark-max-follower-with-lower-can-id-than-leader-causes-4-stutters-sec-until-power-cycled/378716/12
+    m_leftLead.follow(ExternalFollower.kFollowerDisabled, 0);
 
     m_leftFollower.follow(m_leftLead);
     m_rightFollower.follow(m_rightLead);
@@ -153,18 +165,36 @@ public void brakeDrive(){
 
   @Override
   public void periodic() {
+    double leftPosition;
+    double rightPosition;
+    double scaleToSeconds;
+    long fpgaTime;
+
     // This method will be called once per scheduler run
     // Update the odometry in the periodic block
-    m_odometry.update( m_gyro.getRotation2d(), 
-      -m_leftDriveEncoder.getPosition(),
-      m_rightDriveEncoder.getPosition());
+    leftPosition = -m_leftDriveEncoder.getPosition();
+    rightPosition = m_rightDriveEncoder.getPosition();
+
+    // Improve velocity accuracy by using the FPGA time instead of a simple 20 ms or 50 Hz
+    fpgaTime = RobotController.getFPGATime();
+    // FPGA time is in microseconds
+    // divide one second by the time delta to scale the encoder values up to meters/sec
+    scaleToSeconds = 1000000.0 / (fpgaTime - previousFPGATime);
+    leftVelocity = (leftPosition - previousLeftPosition) * scaleToSeconds;
+    rightVelocity = (rightPosition - previousRightPosition) * scaleToSeconds;
+
+    previousLeftPosition = leftPosition;
+    previousRightPosition = rightPosition;
+    previousFPGATime = fpgaTime;
+
+    m_odometry.update( m_gyro.getRotation2d(), leftPosition, rightPosition );
 
     //SmartDashboard.putNumber("Left Encoder", -m_leftDriveEncoder.getPosition());
     //SmartDashboard.putNumber("Right Encoder", m_rightDriveEncoder.getPosition());
-  //  SmartDashboard.putNumber("gyro degrees",  getHeading());
-  //  SmartDashboard.putNumber("odo degrees",   m_odometry.getPoseMeters().getRotation().getDegrees());
-   // SmartDashboard.putNumber("left velocity", -m_leftDriveEncoder.getVelocity());
-   // SmartDashboard.putNumber("right velocity", m_rightDriveEncoder.getVelocity());
+    //SmartDashboard.putNumber("gyro degrees",  getHeading());
+    //SmartDashboard.putNumber("odo degrees",   m_odometry.getPoseMeters().getRotation().getDegrees());
+    //SmartDashboard.putNumber("left velocity", leftVelocity );   //-m_leftDriveEncoder.getVelocity());
+    //SmartDashboard.putNumber("right velocity", rightVelocity ); //m_rightDriveEncoder.getVelocity());
 
     //var translation = m_odometry.getPoseMeters().getTranslation();
     SmartDashboard.putNumber("X", m_odometry.getPoseMeters().getX());
@@ -186,7 +216,8 @@ public void brakeDrive(){
    * @return The current wheel speeds.
    */
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
-    return new DifferentialDriveWheelSpeeds(-m_leftDriveEncoder.getVelocity(), m_rightDriveEncoder.getVelocity());
+    return new DifferentialDriveWheelSpeeds( leftVelocity, rightVelocity );
+//    return new DifferentialDriveWheelSpeeds(-m_leftDriveEncoder.getVelocity(), m_rightDriveEncoder.getVelocity());
   }
 
   /**
