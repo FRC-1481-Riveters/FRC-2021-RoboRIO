@@ -58,7 +58,7 @@ public final class Constants {
 	/* Intake ------------------------------------ */
 	public static final int intakeMotorControllerCANId = 10;
 	public static final int intakeDoubleRollerMotorControllerCANId = 14;
-	public static final double intakeMotorSpeed = .35; // percent .75
+	public static final double intakeMotorSpeed = .50; // percent .75
 	public static final double intakeRunMotorSpeed = .325;
 	public static final double howCloseIsThePowerCell = 16.0; // cm
 	public static final double powerCellHysteresis = 18.0; // cm
@@ -118,8 +118,8 @@ public final class Constants {
 	/* Drive --------------------------------------- */
 	public static final double driveMotorRampRateAuto = 0.001; // number = seconds till full speed
 	public static final double driveMotorRampRateTele = 0.300; // number = seconds till full speed
-	public static final double rotationInQuarter = 0.7;
-	public static final double scaleDriveJoystick = 1.0;
+	public static final double rotationInQuarter = 0.6;
+	public static final double scaleDriveJoystick = 0.7; //1.2
 	public static final int frontLeftMotor = 13;
 	public static final int rearLeftMotor = 12;
 	public static final int frontRightMotor = 2;
@@ -209,7 +209,7 @@ public final class Constants {
 	public static final double indexerStack1PwrCellTimeout = 5.0; // seconds
 
 	public static final double distanceToMovePowerCellWhenLoading = 23; // cm
-	public static final double distanceToMovePowerCellShooting = 16.5;  //cm
+	public static final double distanceToMovePowerCellShooting = 12.5;  //cm
 	public static final double indexerPulleyDiameter = 6.68528; // diameter of indexer pulleys in centimeters
 	/*
 	 * Distance of the Power Cell that's in a normal position at the base of the
