@@ -176,16 +176,18 @@ public void brakeDrive(){
     rightPosition = m_rightDriveEncoder.getPosition();
 
     // Improve velocity accuracy by using the FPGA time instead of a simple 20 ms or 50 Hz
-    fpgaTime = RobotController.getFPGATime();
+    //fpgaTime = RobotController.getFPGATime();
     // FPGA time is in microseconds
     // divide one second by the time delta to scale the encoder values up to meters/sec
-    scaleToSeconds = 1000000.0 / (fpgaTime - previousFPGATime);
-    leftVelocity = (leftPosition - previousLeftPosition) * scaleToSeconds;
-    rightVelocity = (rightPosition - previousRightPosition) * scaleToSeconds;
+    //scaleToSeconds = 1000000.0 / (fpgaTime - previousFPGATime);
+    //leftVelocity = (leftPosition - previousLeftPosition) * scaleToSeconds;
+    //rightVelocity = (rightPosition - previousRightPosition) * scaleToSeconds;
+    leftVelocity = -m_leftDriveEncoder.getVelocity();
+    rightVelocity = m_rightDriveEncoder.getVelocity();
 
     previousLeftPosition = leftPosition;
     previousRightPosition = rightPosition;
-    previousFPGATime = fpgaTime;
+    //previousFPGATime = fpgaTime;
 
     m_odometry.update( m_gyro.getRotation2d(), leftPosition, rightPosition );
 
