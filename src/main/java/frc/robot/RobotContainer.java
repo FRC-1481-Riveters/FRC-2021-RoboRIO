@@ -187,7 +187,7 @@ public class RobotContainer {
                                         new IndexerMoveUpOne(m_indexer),
                                         new KickerAdvanceCommand(m_kicker, m_shooter) //     
                                 ) 
-                                //new WaitCommand(2.0) //
+                                // new WaitCommand(1.0) //
                         ) //
                 );
 
@@ -202,10 +202,14 @@ public class RobotContainer {
                                 new KickerAdvanceCommand(m_kicker, m_shooter) //     
                         ) 
                         //new WaitCommand(2.0) //
-                ) //
-        );
+                ) ); //
 
-        new JoystickButton(m_driverController, Button.kA.value).whenReleased(new ShooterYeetCommand(m_shooter, 0.0));
+                new JoystickButton(m_operatorController, Button.kBumperRight.value).whileHeld( //
+                        new ShooterYeetCommand(m_shooter, Constants.shooterYeetSpeedGreenYellow) //
+                );
+                new JoystickButton(m_operatorController, Button.kBumperRight.value).whenReleased(new ShooterYeetCommand(m_shooter, 0.0));
+
+                new JoystickButton(m_driverController, Button.kA.value).whenReleased(new ShooterYeetCommand(m_shooter, 0.0));
 
                 /* Load Power Cells */
                 new JoystickButton(m_operatorController, Button.kY.value).whileHeld(new IndexerCarryUpCommand(m_indexer));
@@ -228,7 +232,7 @@ public class RobotContainer {
                         ) //
                 );
 
-                new JoystickButton(m_operatorController, Button.kBumperRight.value).whileHeld( //
+                new JoystickButton(m_operatorController, Button.kB.value).whileHeld( //
                         new ParallelCommandGroup( //
                                 new IntakeDropOffCommand(m_intake), //
                                 new IndexerSpitOutCommand(m_indexer) //
