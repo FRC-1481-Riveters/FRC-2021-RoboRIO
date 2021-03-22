@@ -113,7 +113,7 @@ public class RobotContainer {
         private final Command AutonSearchB = 
                 new AutonRamsetePath( m_drive, LoadTrajectory("paths/SearchB.json"), true );
         private final Command AutonNothing =
-                new SequentialCommandGroup(new PrintCommand("Do nothing selected for auton."), new WaitCommand(5.0))
+                new SequentialCommandGroup(new PrintCommand("Do nothing selected for auton."), new WaitCommand(5.0));
         SendableChooser<Command> m_chooser = new SendableChooser<>();
 
         /**
