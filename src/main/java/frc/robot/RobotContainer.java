@@ -282,12 +282,6 @@ public class RobotContainer {
         public void disabledInit(){
                 m_drive.coastDrive();
         }
-            
-        public void resetPose() {
-                m_drive.resetOdometry( new Pose2d(0, 0, new Rotation2d(0) ) );
-                m_drive.resetEncoders();
-                //m_drive.zeroHeading();        
-        }
 
         private Trajectory LoadTrajectory( String jsonname )
         {
