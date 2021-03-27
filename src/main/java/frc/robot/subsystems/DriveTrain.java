@@ -129,8 +129,15 @@ public void setOpenLoop(boolean auton)
    */
   public void drive(double xSpeed, double zRotation) {
     m_drive.arcadeDrive(xSpeed, zRotation);
+    //System.out.println ("drive speed = " + xSpeed + ", rotation  = " + zRotation);
   }
 
+  public void driveTank(double left, double right) {
+    m_leftLead.set(left);
+    m_rightLead.set(right);
+    m_drive.feed();
+    //System.out.println ("driveTank left  = " + -left + ", right  = " + right);
+  }
   /**
    * Tank drive at a PID-driven velocity method.
    *
@@ -240,20 +247,27 @@ public void brakeDrive(){
    * @param rightVolts the commanded right output
    */
   public void tankDriveVolts(double leftVolts, double rightVolts) {
-    SmartDashboard.putNumber("leftVolts", -leftVolts);
-    SmartDashboard.putNumber("rightVolts", rightVolts);
-//    if( leftVolts > 3 ) leftVolts = 3;
-///    if( leftVolts < -3 ) leftVolts = -3;
+    //SmartDashboard.putNumber("leftVolts", -leftVolts);
+    //SmartDashboard.putNumber("rightVolts", rightVolts);
     m_leftLead.setVoltage(-leftVolts);
-//    if( rightVolts > 3 ) rightVolts = 3;
-//    if( rightVolts < -3 ) rightVolts = -3;
     m_rightLead.setVoltage(rightVolts);
+    //System.out.println ("tankDriveVolts left  = " + leftVolts + ", right  = " + rightVolts);
     m_drive.feed();
   }
 
   public void resetEncoders() {
     m_leftDriveEncoder.setPosition(0);
     m_rightDriveEncoder.setPosition(0);
+  }
+
+  public double getVoltsLeft()
+  {
+     return m_leftLead.get();
+  }
+
+  public double getVoltsRight()
+  {
+     return m_rightLead.get();
   }
 
   /**

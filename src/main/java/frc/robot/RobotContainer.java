@@ -14,6 +14,8 @@ import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commands.ArcadeDrive;
+import frc.robot.commands.AutonMacroPlayback;
+import frc.robot.commands.AutonMacroRecord;
 import frc.robot.commands.AutonRobotDriveDistance;
 import frc.robot.commands.AutonShoot3StackedPowerCellsAndDriveOffLine;
 import frc.robot.commands.AutonSuperTrenchSequence;
@@ -114,6 +116,9 @@ public class RobotContainer {
                 new AutonRamsetePath( m_drive, LoadTrajectory("paths/SearchB.json"), true );
         private final Command AutonNothing =
                 new SequentialCommandGroup(new PrintCommand("Do nothing selected for auton."), new WaitCommand(5.0));
+        private final Command AutonPlayback =
+                new AutonMacroPlayback( "/home/lvuser/autonpath.csv", m_drive );
+
         SendableChooser<Command> m_chooser = new SendableChooser<>();
 
         /**
@@ -150,6 +155,7 @@ public class RobotContainer {
                 m_chooser.addOption("Barrel path",       AutonBarrel );
                 m_chooser.addOption("Galactic Search A", AutonSearchA );
                 m_chooser.addOption("Galactic Search B", AutonSearchB );
+                m_chooser.addOption("Playback", AutonPlayback );
 
                 SmartDashboard.putData("Auto mode", m_chooser);
         }
@@ -209,6 +215,9 @@ public class RobotContainer {
                 );
                 new JoystickButton(m_operatorController, Button.kBumperRight.value).whenReleased(new ShooterYeetCommand(m_shooter, 0.0));
 
+                new JoystickButton(m_operatorController, Button.kStart.value).whenPressed(
+                     new AutonMacroRecord( "/home/lvuser/autonpath.csv", m_drive) );
+
                 new JoystickButton(m_driverController, Button.kA.value).whenReleased(new ShooterYeetCommand(m_shooter, 0.0));
 
                 /* Load Power Cells */
@@ -263,7 +272,7 @@ public class RobotContainer {
         }
 
         public void autonomousInit() {
-                m_drive.setOpenLoop(true);
+                m_drive.setOpenLoop(false);
                 m_drive.brakeDrive();
         }
         public void teleopInit() {

@@ -116,10 +116,10 @@ public final class Constants {
 	public static final int relayElevatorSolenoid = 0;
 
 	/* Drive --------------------------------------- */
-	public static final double driveMotorRampRateAuto = 0.001; // number = seconds till full speed
+	public static final double driveMotorRampRateAuto = 0.0; // number = seconds till full speed
 	public static final double driveMotorRampRateTele = 0.300; // number = seconds till full speed
 	public static final double rotationInQuarter = 0.6;
-	public static final double scaleDriveJoystick = 0.7; //1.2
+	public static final double scaleDriveJoystick = 0.8; //0.7, 1.2
 	public static final int frontLeftMotor = 13;
 	public static final int rearLeftMotor = 12;
 	public static final int frontRightMotor = 2;
@@ -129,7 +129,7 @@ public final class Constants {
 	public static final double ksVolts = 0.217;
     public static final double kvVoltSecondsPerMeter = 6.43;
 	public static final double kaVoltSecondsSquaredPerMeter = 1.07;
-	public static final double kPDriveVel = 3.0; //1.26
+	public static final double kPDriveVel = 6.0; //3.0, 1.26, 0.5
 	public static final double kTrackwidthMeters = 0.5715;
 	public static final double kMaxSpeedMetersPerSecond = 3.6576;
 	public static final double kMaxAccelerationMetersPerSecondSquared = 1;

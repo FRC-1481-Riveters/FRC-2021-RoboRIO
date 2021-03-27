@@ -14,9 +14,9 @@ import edu.wpi.first.wpilibj.DriverStation;
 
 public class AutonRamsetePath extends RamseteCommand {
 
-  private static Trajectory trajectory;
-  private static DriveTrain driveTrain;
-  private static boolean stopAfter;
+  private Trajectory trajectory;
+  private DriveTrain driveTrain;
+  private boolean stopAfter;
 
   public AutonRamsetePath( DriveTrain m_drive, Trajectory m_trajectory, boolean m_stopAfter )
     {
@@ -37,14 +37,15 @@ public class AutonRamsetePath extends RamseteCommand {
     driveTrain = m_drive;
     trajectory = m_trajectory;
     stopAfter = m_stopAfter;
+    addRequirements(driveTrain);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    super.initialize();
     driveTrain.resetOdometry( trajectory.getInitialPose() );
     DriverStation.reportError("Robot X set to " + driveTrain.m_odometry.getPoseMeters().getX() +  "  Robot Y set to " +  driveTrain.m_odometry.getPoseMeters().getY(), false);
-    super.initialize();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
