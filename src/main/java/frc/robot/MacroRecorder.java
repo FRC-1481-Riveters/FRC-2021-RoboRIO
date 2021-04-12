@@ -5,6 +5,8 @@ package frc.robot;
 import java.io.FileWriter;
 import java.io.IOException;
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Indexer;
 
 /*
 *This macro records all the movements you make in teleop and saves them to the file you specify.
@@ -28,11 +30,15 @@ public class MacroRecorder {
 	
 	private long startTime;
 	private DriveTrain m_drivetrain;
+	private Intake m_intake;
+    private Indexer m_indexer;
 
 	
-	public MacroRecorder( String filename, DriveTrain drivetrain ) throws IOException
+	public MacroRecorder( String filename, DriveTrain drivetrain, Intake intake, Indexer indexer ) throws IOException
 	{
 			m_drivetrain = drivetrain;
+			m_intake = intake;
+			m_indexer = indexer;
 
 			//record the time we started recording
 			startTime = System.currentTimeMillis();
@@ -47,26 +53,31 @@ public class MacroRecorder {
 	{
 		if(writer != null)
 		{
-		//start each "frame" with the elapsed time since we started recording
-		writer.append("" + (System.currentTimeMillis()-startTime));
-		
-		//in this chunk, use writer.append to add each type of data you want to record to the frame
-		//the 2015 robot used the following motors during auto
-		
-		//drive motors
-		writer.append("," + m_drivetrain.getVoltsLeft() );
-		
-		/*
-		 * THE LAST ENTRY OF THINGS YOU RECORD NEEDS TO HAVE A DELIMITER CONCATENATED TO 
-		 * THE STRING AT THE END. OTHERWISE GIVES NOSUCHELEMENTEXCEPTION
-		 */ 
-		
-		writer.append("," + m_drivetrain.getVoltsRight() + "\n");
-		
-		/*
-		 * CAREFUL. KEEP THE LAST THING YOU RECORD BETWEEN THESE TWO COMMENTS AS A
-		 * REMINDER TO APPEND THE DELIMITER
-		 */
+			//start each "frame" with the elapsed time since we started recording
+			writer.append("" + (System.currentTimeMillis()-startTime));
+			
+			//in this chunk, use writer.append to add each type of data you want to record to the frame
+			//the 2015 robot used the following motors during auto
+			
+			//drive motors
+			writer.append("," + m_drivetrain.getVoltsLeft() );
+			
+			/*
+			* THE LAST ENTRY OF THINGS YOU RECORD NEEDS TO HAVE A DELIMITER CONCATENATED TO 
+			* THE STRING AT THE END. OTHERWISE GIVES NOSUCHELEMENTEXCEPTION
+			*/ 
+			
+			writer.append("," + m_drivetrain.getVoltsRight());
+			
+			writer.append("," + m_intake.getIntakeVolts());
+
+			writer.append(","  + m_indexer.getUpperIndexerVolts());
+
+			/*
+			* CAREFUL. KEEP THE LAST THING YOU RECORD BETWEEN THESE TWO COMMENTS AS A
+			* REMINDER TO APPEND THE DELIMITER
+			*/
+			writer.append("," + m_indexer.getLowerIndexerVolts() + "\n");
 		}
 	}
 	

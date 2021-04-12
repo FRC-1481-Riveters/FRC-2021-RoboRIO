@@ -259,4 +259,22 @@ public class Indexer extends SubsystemBase {
   @Override
   public void periodic() {
   }
+
+  public double getUpperIndexerVolts()
+  {
+     return m_upperIndexer.get();
+  }
+
+  public double getLowerIndexerVolts()
+  {
+     return m_lowerIndexer.get();
+  }
+
+  public void setIndexer(double setUpper, double setLower) {
+    m_upperIndexer.set(setUpper);
+    m_lowerIndexer.set(setLower);
+    m_upperIndexer.feed();
+    m_lowerIndexer.feed();
+    //System.out.println ("driveTank left  = " + -left + ", right  = " + right);
+  }
 }

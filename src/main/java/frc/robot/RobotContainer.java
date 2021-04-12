@@ -36,6 +36,7 @@ import frc.robot.commands.IntakePositionPowerCellCommand;
 import frc.robot.commands.IntakeRunForABit;
 import frc.robot.commands.KickerAdvanceCommand;
 import frc.robot.commands.KickerCaptureCommand;
+//import frc.robot.commands.PlaybackPickup;
 import frc.robot.commands.PositionControlPanelCommand;
 import frc.robot.commands.RotateOrJogControlPanelCommand;
 import frc.robot.commands.ShooterYeetCommand;
@@ -44,7 +45,7 @@ import frc.robot.commands.raiseElevator;
 import frc.robot.subsystems.Kicker;
 import frc.robot.subsystems.PowerCellArm;
 import frc.robot.subsystems.AutoAssistSubsystem;
-import frc.robot.subsystems.CameraSubsystem;
+//import frc.robot.subsystems.CameraSubsystem;
 import frc.robot.subsystems.DriveTrain;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -89,7 +90,7 @@ public class RobotContainer {
         private final Kicker m_kicker = new Kicker();
         public final DriveTrain m_drive = new DriveTrain();
 
-        private final CameraSubsystem m_cameraSubsystem = new CameraSubsystem(m_drive);
+        //private final CameraSubsystem m_cameraSubsystem = new CameraSubsystem(m_drive);
         //private final Elevator m_elevator = new Elevator();
         //private final Goosehook m_goosehook = new Goosehook();
 
@@ -117,8 +118,30 @@ public class RobotContainer {
         private final Command AutonNothing =
                 new SequentialCommandGroup(new PrintCommand("Do nothing selected for auton."), new WaitCommand(5.0));
         private final Command AutonPlayback =
-                new AutonMacroPlayback( "/home/lvuser/autonpath.csv", m_drive );
-
+                new AutonMacroPlayback( "/home/lvuser/autonpath.csv", m_drive, m_intake, m_indexer );
+        private final Command AutonPlaybackPickup = 
+                new ParallelCommandGroup(
+                        new AutonMacroPlayback( "/home/lvuser/autonpath.csv", m_drive, m_intake, m_indexer ), 
+                        new SequentialCommandGroup( //
+                          new IntakePositionPowerCellCommand(m_intake), // Pull in a PowerCell with the intake
+                          new ParallelCommandGroup( //
+                            new IntakeRunForABit(m_intake, 2.00), // Pin the Power Cell against the indexer
+                            new IndexerStackOnePowerCell(m_indexer) //
+                              .withTimeout(Constants.indexerStack1PwrCellTimeout)
+                          ),
+                          new ParallelCommandGroup( //
+                            new IntakeRunForABit(m_intake, 2.00), // Pin the Power Cell against the indexer
+                            new IndexerStackOnePowerCell(m_indexer) //
+                              .withTimeout(Constants.indexerStack1PwrCellTimeout)
+                          ),
+                          new ParallelCommandGroup( //
+                            new IntakeRunForABit(m_intake, 2.00), // Pin the Power Cell against the indexer
+                            new IndexerStackOnePowerCell(m_indexer) //
+                              .withTimeout(Constants.indexerStack1PwrCellTimeout)
+                          )
+                        )
+                      );
+          
         SendableChooser<Command> m_chooser = new SendableChooser<>();
 
         /**
@@ -153,9 +176,8 @@ public class RobotContainer {
                 m_chooser.addOption("Slalom path",       AutonSlalom );
                 m_chooser.addOption("Bounce path",       AutonBounce );
                 m_chooser.addOption("Barrel path",       AutonBarrel );
-                m_chooser.addOption("Galactic Search A", AutonSearchA );
-                m_chooser.addOption("Galactic Search B", AutonSearchB );
                 m_chooser.addOption("Playback", AutonPlayback );
+                m_chooser.addOption("Playback with Pickup", AutonPlaybackPickup);
 
                 SmartDashboard.putData("Auto mode", m_chooser);
         }
@@ -210,19 +232,19 @@ public class RobotContainer {
                         //new WaitCommand(2.0) //
                 ) ); //
 
-                new JoystickButton(m_operatorController, Button.kBumperRight.value).whileHeld( //
+                new JoystickButton(m_operatorController, Button.kY.value).whileHeld( //
                         new ShooterYeetCommand(m_shooter, Constants.shooterYeetSpeedGreenYellow) //
                 );
-                new JoystickButton(m_operatorController, Button.kBumperRight.value).whenReleased(new ShooterYeetCommand(m_shooter, 0.0));
+                new JoystickButton(m_operatorController, Button.kY.value).whenReleased(new ShooterYeetCommand(m_shooter, 0.0));
 
                 new JoystickButton(m_operatorController, Button.kStart.value).whenPressed(
-                     new AutonMacroRecord( "/home/lvuser/autonpath.csv", m_drive) );
+                     new AutonMacroRecord( "/home/lvuser/autonpath.csv", m_drive, m_intake, m_indexer) );
 
                 new JoystickButton(m_driverController, Button.kA.value).whenReleased(new ShooterYeetCommand(m_shooter, 0.0));
 
                 /* Load Power Cells */
-                new JoystickButton(m_operatorController, Button.kY.value).whileHeld(new IndexerCarryUpCommand(m_indexer));
-                new JoystickButton(m_operatorController, Button.kA.value).whenReleased(new IndexerSpitOutCommand(m_indexer));
+                //new JoystickButton(m_operatorController, Button.kY.value).whileHeld(new IndexerCarryUpCommand(m_indexer));
+                //new JoystickButton(m_operatorController, Button.kA.value).whenReleased(new IndexerSpitOutCommand(m_indexer));
 
                 new JoystickButton(m_operatorController, Button.kBumperLeft.value).whileHeld( //
                         new ParallelDeadlineGroup( // Run until the Intake and Indexer are done and end even if the
@@ -241,7 +263,7 @@ public class RobotContainer {
                         ) //
                 );
 
-                new JoystickButton(m_operatorController, Button.kB.value).whileHeld( //
+                new JoystickButton(m_operatorController, Button.kBumperRight.value).whileHeld( //
                         new ParallelCommandGroup( //
                                 new IntakeDropOffCommand(m_intake), //
                                 new IndexerSpitOutCommand(m_indexer) //

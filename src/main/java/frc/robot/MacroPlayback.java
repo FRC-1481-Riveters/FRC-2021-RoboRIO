@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Indexer;
 
 /*Code outline to implement playing back a macro recorded in BTMacroRecord
 *Be sure to read out of the same file created in BTMacroRecord
@@ -21,17 +23,25 @@ public class MacroPlayback {
 	Scanner scanner;
 	long startTime;
     DriveTrain m_drivetrain;
+    Intake m_intake;
+    Indexer  m_indexer;
 	boolean onTime = true;
     double nextDouble;
     double current_time;
     double current_left;
     double current_right;
+    double current_intake;
+    double current_upper;
+    double current_lower;
     double next_time;
     double next_left;
     double next_right;
+    double next_intake;
+    double next_upper;
+    double next_lower;
     boolean m_finished;
 
-	public MacroPlayback( String filename, DriveTrain drivetrain ) throws FileNotFoundException
+	public MacroPlayback( String filename, DriveTrain drivetrain, Intake intake, Indexer indexer) throws FileNotFoundException
 	{
 		//create a scanner to read the file created during BTMacroRecord
 		//scanner is able to read out the doubles recorded into recordedAuto.csv (as of 2015)
@@ -39,6 +49,8 @@ public class MacroPlayback {
         scanner = new Scanner(new File( filename ));
         
         m_drivetrain = drivetrain;
+        m_intake  = intake;
+        m_indexer = indexer;
         next_time  = -99999;
 
 		//let scanner know that the numbers are separated by a comma or a newline, as it is a .csv file
@@ -64,15 +76,23 @@ public class MacroPlayback {
                 current_time  = next_time;
                 current_left = next_left;
                 current_right = next_right;
+                current_intake = next_intake;
+                current_upper = next_upper;
+                current_lower = next_lower;
 
                 next_time = scanner.nextDouble();
                 next_left = scanner.nextDouble();
                 next_right = scanner.nextDouble();
+                next_intake = scanner.nextDouble();
+                next_upper = scanner.nextDouble();
+                next_lower = scanner.nextDouble();
             }
 
             if( current_time <= elapsed_time)
             {
                 m_drivetrain.driveTank(current_left, current_right);
+//                m_intake.setSpeed(current_intake);
+//                m_indexer.setIndexer(current_upper, current_lower);
             }
 			
 		}
@@ -93,6 +113,8 @@ public class MacroPlayback {
 	public void end()
 	{
         m_drivetrain.driveTank( 0, 0 );
+        m_intake.setIntake(0);
+        m_indexer.setIndexer(0, 0);
 
         if (scanner != null)
 		{

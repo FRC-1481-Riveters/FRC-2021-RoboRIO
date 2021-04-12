@@ -73,4 +73,14 @@ public class Intake extends SubsystemBase {
     SmartDashboard.putNumber("Intake Power Cell detector range (cm)", intakeSensor);
 
   }
+
+  public double getIntakeVolts()
+  {
+     return m_intakeDoubleRoller.get();
+  }
+
+  public void setIntake(double setpoint) {
+    m_intake.set(setpoint);
+    m_intake.feed();
+  }
 }
